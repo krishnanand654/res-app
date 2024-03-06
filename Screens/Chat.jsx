@@ -4,6 +4,7 @@ import * as Location from 'expo-location';
 import { View, Text, TextInput, Button, FlatList, StyleSheet, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
@@ -12,6 +13,8 @@ const ChatScreen = () => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [loadingLocation, setLoadingLocation] = useState(false);
+
+    const navigation = useNavigation();
 
     const handleSendLocation = async () => {
         try {
@@ -68,6 +71,7 @@ const ChatScreen = () => {
                 { id: 3, username: 'Kris', message: 'How are you?' },
                 { id: 4, username: 'Kris', message: 'How are you?' },
                 { id: 5, username: 'Krishnanand', message: 'I"m stuck here please help me please' },
+                { id: 6, username: 'Krishnanand', message: '9.510057576982812, 76.55070881721772' },
             ];
 
             setMessages(localMessages);
@@ -99,6 +103,12 @@ const ChatScreen = () => {
         }
     };
 
+    const handlePressLocation = (latitude, longitude) => {
+        // Navigate to MapScreen with latitude and longitude as p
+
+        navigation.navigate('map', { latitude, longitude });
+    };
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -112,11 +122,22 @@ const ChatScreen = () => {
                         item.username === senderName ? styles.senderMessage : styles.receiverMessage
                     ]}>
                         <Text style={[styles.username, item.username === senderName ? styles.senderName : styles.receiverName]}>{item.username}</Text>
-                        <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
+                        {/* Check if message contains latitude and longitude */}
+                        {item.message.includes(',') ? (
+                            <Pressable onPress={() => {
+                                const [latitude, longitude] = item.message.split(', ');
+                                handlePressLocation(parseFloat(latitude), parseFloat(longitude));
+                            }}>
+                                <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
+                            </Pressable>
+                        ) : (
+                            <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
+                        )}
                     </View>
                 )}
                 keyExtractor={(item) => item.id.toString()}
             />
+
 
             <View style={styles.inputContainer}>
                 <TextInput

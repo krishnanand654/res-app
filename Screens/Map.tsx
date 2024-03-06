@@ -7,6 +7,11 @@ import { AppConstants } from "../constants";
 import { DownloadSettings } from "./DownloadSettings";
 import Constants from "expo-constants";
 
+interface MapProps {
+  latitude: number;
+  longitude: number;
+}
+
 const INITIALREGION: Region = {
   latitude: 9.510193665049792,
   longitude: 76.51247231749345,
@@ -16,10 +21,12 @@ const INITIALREGION: Region = {
 
 const MAP_TYPE: MapTypes = Platform.OS == "android" ? "none" : "standard";
 
-export const Map: FC = () => {
+export const Map: FC = ({ route }) => {
   const [isOffline, setIsOffline] = useState(true);
   const [visisbleSettings, setVisisbleSettings] = useState(false);
   const [mapRegion, setMapRegion] = useState(INITIALREGION);
+
+  const { latitude, longitude } = route.params;
 
   const urlTemplate = useMemo(
     () =>
@@ -65,8 +72,8 @@ export const Map: FC = () => {
         {/* Add Marker component with desired coordinates */}
         <Marker
           coordinate={{
-            latitude: 9.462780383321961,
-            longitude: 76.52740362671155,
+            latitude: latitude,
+            longitude: longitude,
           }}
           title="Your Marker Title"
           description="Your Marker Description"
