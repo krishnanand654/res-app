@@ -1,10 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
+
 const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
     const [senderName, setSenderName] = useState('');
+    const [location, setLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
+    const [loadingLocation, setLoadingLocation] = useState(false);
+
+    const handleSendLocation = async () => {
+        try {
+            setLoadingLocation(true);
+
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            const { coords } = location;
+
+            if (coords) {
+                const { longitude, latitude } = coords;
+                setLocation({ longitude, latitude });
+                setInputMessage(`Longitude: ${longitude}, Latitude: ${latitude}`);
+                handleSendMessage();
+            } else {
+                setErrorMsg('Failed to get location coordinates');
+            }
+        } catch (error) {
+            console.error('Error getting location:', error);
+        } finally {
+            setLoadingLocation(false);
+        }
+    };
 
     useEffect(() => {
         retrieveData();
@@ -21,29 +56,24 @@ const ChatScreen = () => {
         }
     };
 
-    console.log(senderName);
-
     useEffect(() => {
         fetchMessages();
     }, []);
 
     const fetchMessages = async () => {
         try {
-            // const response = await fetch('http://10.10.10.1/messages');
-            // const data = await response.json();
-            // setMessages(data.messages);
             const localMessages = [
-                { id: 1, username: 'user1', message: 'Hello' },
-                { id: 2, username: 'user2', message: 'Hi' },
-                { id: 3, username: 'user1', message: 'How are you?' },
-                // Add more messages as needed
+                { id: 1, username: 'Kris', message: 'Hello' },
+                { id: 2, username: 'Krishnanand', message: 'Hi' },
+                { id: 3, username: 'Kris', message: 'How are you?' },
+                { id: 4, username: 'Kris', message: 'How are you?' },
+                { id: 5, username: 'Krishnanand', message: 'I"m stuck here please help me please' },
             ];
 
             setMessages(localMessages);
-
-
         } catch (error) {
-            console.error('Error fetching messages:', error);
+            console.error('No messages');
+            console.log('error', error)
         }
     };
 
@@ -51,7 +81,6 @@ const ChatScreen = () => {
         if (inputMessage.trim() === '') {
             return;
         }
-        console.log("invoked")
 
         const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${senderName}`;
 
@@ -62,9 +91,7 @@ const ChatScreen = () => {
                     'Content-Type': 'application/json',
                 },
             });
-            console.log("send")
 
-            // After sending the message, fetch messages again to update the list
             fetchMessages();
             setInputMessage('');
         } catch (error) {
@@ -72,14 +99,20 @@ const ChatScreen = () => {
         }
     };
 
-
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}
+        >
             <FlatList
                 data={messages}
                 renderItem={({ item }) => (
-                    <View style={styles.messageContainer}>
-                        <Text style={styles.messageText}>{item.username}: {item.message}</Text>
+                    <View style={[
+                        styles.messageContainer,
+                        item.username === senderName ? styles.senderMessage : styles.receiverMessage
+                    ]}>
+                        <Text style={[styles.username, item.username === senderName ? styles.senderName : styles.receiverName]}>{item.username}</Text>
+                        <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
                     </View>
                 )}
                 keyExtractor={(item) => item.id.toString()}
@@ -93,41 +126,100 @@ const ChatScreen = () => {
                     placeholder="Type your message..."
                     multiline
                 />
-                <Button title="Send" onPress={handleSendMessage} />
+                <Pressable style={styles.button} onPress={handleSendLocation}>
+                    <Entypo name="location-pin" size={35} color="#006ee6" />
+                </Pressable>
+                <Pressable style={styles.button} onPress={handleSendMessage}>
+                    <Feather name="send" size={32} color="#006ee6" />
+                </Pressable>
             </View>
-        </View>
+            {loadingLocation && (
+                <View style={styles.spinnerContainer}>
+                    <ActivityIndicator size="large" color="#0000ff" />
+                </View>
+            )}
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
+    button: {
+        marginRight: 15,
+    },
+    username: {
+        marginBottom: 5
+    },
+    senderName: {
+        alignSelf: 'flex-end'
+    },
+    senderMessage: {
+        alignSelf: 'flex-end',
+    },
+    senderMessageText: {
+        alignSelf: 'flex-end',
+        backgroundColor: '#006ee6',
+        color: '#fff',
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        padding: 10,
+        overflow: 'hidden',
+    },
+    receiverMessage: {
+        alignSelf: 'flex-start',
+    },
+    receiverMessageText: {
+        alignSelf: 'flex-start',
+        backgroundColor: '#dfdfdf',
+        borderRadius: 10,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        padding: 10,
+        overflow: 'hidden',
+    },
     container: {
         flex: 1,
+    },
+    spinnerContainer: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
         justifyContent: 'center',
+        alignItems: 'center',
     },
     messageContainer: {
         padding: 10,
-        backgroundColor: '#eee',
         marginVertical: 5,
-        borderRadius: 10,
         alignSelf: 'flex-start',
-        maxWidth: '80%',
+        maxWidth: '100%',
     },
     messageText: {
         fontSize: 16,
+        maxWidth: '100%',
+        padding: 10,
+        borderRadius: 10,
     },
     inputContainer: {
+        backgroundColor: "#eee",
+        paddingTop: 20,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 10,
         borderTopWidth: 1,
         borderTopColor: '#ccc',
+        marginBottom: 50,
     },
     input: {
+        fontSize: 18,
+        paddingTop: 12,
         flex: 1,
         paddingHorizontal: 10,
         paddingVertical: 8,
         marginRight: 10,
         borderWidth: 1,
+        height: 50,
         borderColor: '#ccc',
         borderRadius: 20,
     },
