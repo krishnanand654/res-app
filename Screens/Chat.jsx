@@ -65,16 +65,20 @@ const ChatScreen = () => {
 
     const fetchMessages = async () => {
         try {
-            const localMessages = [
-                { id: 1, username: 'Kris', message: 'Hello' },
-                { id: 2, username: 'Krishnanand', message: 'Hi' },
-                { id: 3, username: 'Kris', message: 'How are you?' },
-                { id: 4, username: 'Kris', message: 'How are you?' },
-                { id: 5, username: 'Krishnanand', message: 'I"m stuck here please help me please' },
-                { id: 6, username: 'Krishnanand', message: '9.510057576982812, 76.55070881721772' },
-            ];
+            const response = await fetch('http://10.10.10.1/messages');
+            const data = await response.json();
+            setMessages(data.messages);
 
-            setMessages(localMessages);
+            // const localMessages = [
+            //     { id: 1, username: 'Kris', message: 'Hello' },
+            //     { id: 2, username: 'Krishnanand', message: 'Hi' },
+            //     { id: 3, username: 'Kris', message: 'How are you?' },
+            //     { id: 4, username: 'Kris', message: 'How are you?' },
+            //     { id: 5, username: 'Krishnanand', message: 'I"m stuck here please help me please' },
+            //     { id: 6, username: 'Krishnanand', message: '9.510057576982812, 76.55070881721772' },
+            // ];
+
+            // setMessages(localMessages);
         } catch (error) {
             console.error('No messages');
             console.log('error', error)

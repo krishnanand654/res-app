@@ -13,6 +13,7 @@ import { Map } from './Screens/Map';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
+  const [refreshKey, setRefreshKey] = useState(0);
   const [setupCompleted, setSetupCompleted] = useState(true);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function App() {
         method: 'POST'
       });
       console.log("cleared")
-
+      setRefreshKey(prevKey => prevKey + 1);
     } catch (error) {
       console.error('Error sending message:', error);
     }
