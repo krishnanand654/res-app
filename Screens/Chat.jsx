@@ -28,7 +28,7 @@ const ChatScreen = () => {
 
             let location = await Location.getCurrentPositionAsync({});
             const { coords } = location;
-            console.log(coords)
+
             if (coords) {
                 const { longitude, latitude } = coords;
                 setLocation({ longitude, latitude });
@@ -66,20 +66,23 @@ const ChatScreen = () => {
 
     const fetchMessages = async () => {
         try {
-            const response = await fetch('http://10.10.10.1/messages');
-            const data = await response.json();
-            setMessages(data.messages);
+            // const response = await fetch('http://10.10.10.1/messages');
+            // const data = await response.json();
+            // setMessages(data.messages);
 
-            // const localMessages = [
-            //     { id: 1, username: 'Kris', message: 'Hello' },
-            //     { id: 2, username: 'Krishnanand', message: 'Hi' },
-            //     { id: 3, username: 'Kris', message: 'How are you?' },
-            //     { id: 4, username: 'Kris', message: 'How are you?' },
-            //     { id: 5, username: 'Krishnanand', message: 'I"m stuck here please help me please' },
-            //     { id: 6, username: 'Krishnanand', message: '9.510057576982812, 76.55070881721772' },
-            // ];
+            const localMessages = [
+                { id: 1, username: 'Kris', message: 'Hello' },
+                { id: 2, username: 'Krishnanand', message: 'Hi' },
+                { id: 3, username: 'Kris', message: 'How are you?' },
+                { id: 4, username: 'Kris', message: 'How are you?' },
+                { id: 5, username: 'Krishnanand', message: 'I"m stuck here please help me please' },
+                { id: 6, username: 'Krishnanand', message: '9.510057576982812,76.55070881721772' },
+                { id: 7, username: 'Kris', message: 'Hi Ay' },
 
-            // setMessages(localMessages);
+
+            ];
+
+            setMessages(localMessages);
         } catch (error) {
             console.error('No messages');
             console.log('error', error)
@@ -133,7 +136,8 @@ const ChatScreen = () => {
                                 const [latitude, longitude] = item.message.split(',');
                                 handlePressLocation(parseFloat(latitude), parseFloat(longitude));
                             }}>
-                                <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
+                                <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message} <Feather name="external-link" size={24} style={styles.linkIcon} /></Text>
+
                             </Pressable>
                         ) : (
                             <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
@@ -169,6 +173,9 @@ const ChatScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    linkIcon: {
+        marginLeft: 10
+    },
     button: {
         marginRight: 15,
     },

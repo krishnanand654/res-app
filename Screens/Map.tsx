@@ -19,7 +19,7 @@ const INITIALREGION: Region = {
   longitudeDelta: 1,
 };
 
-const MAP_TYPE: MapTypes = Platform.OS == "android" ? "none" : "standard";
+const MAP_TYPE: MapTypes = Platform.OS == "android" ? "standard" : "standard";
 
 export const Map: FC = ({ route }) => {
   const [isOffline, setIsOffline] = useState(true);
