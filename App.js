@@ -9,6 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Home from './Screens/Home';
 import ChatScreen from './Screens/Chat';
 import { Button } from 'react-native';
+import { Map } from './Screens/Map';
+
 const Stack = createNativeStackNavigator();
 export default function App() {
   const [setupCompleted, setSetupCompleted] = useState(true);
@@ -46,6 +48,8 @@ export default function App() {
         <Stack.Screen name="setup" component={UserSetupScreen} />
         <Stack.Screen name="login" component={Login} />
         <Stack.Screen name="home" component={Home} />
+        <Stack.Screen name="map" component={Map} />
+
         <Stack.Screen name="chat" component={ChatScreen} options={{
           headerTitle: "demo",
           headerRight: () => (

@@ -25,7 +25,7 @@ const ChatScreen = () => {
 
             let location = await Location.getCurrentPositionAsync({});
             const { coords } = location;
-
+            console.log(coords)
             if (coords) {
                 const { longitude, latitude } = coords;
                 setLocation({ longitude, latitude });

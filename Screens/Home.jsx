@@ -34,7 +34,7 @@ const Home = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.username}>Registered User: {username}</Text>
-            <Pressable onPress={() => { navigation.navigate('chat') }}><Text>Chats</Text></Pressable>
+            <Pressable onPress={() => { navigation.navigate('map') }}><Text>Chats</Text></Pressable>
         </View >
     );
 };
