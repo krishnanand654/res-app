@@ -5,6 +5,7 @@ import { View, Text, TextInput, Button, FlatList, StyleSheet, ActivityIndicator,
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const ChatScreen = () => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -39,7 +40,10 @@ const ChatScreen = () => {
 
     const inputContainerStyle = {
         ...styles.inputContainer,
-        height: keyboardVisible ? 150 : 80, // Adjust height based on keyboard visibility
+        height: Platform.select({
+            ios: keyboardVisible ? 150 : 80,
+            android: keyboardVisible ? 150 : 60,
+        }),
     };
 
 
@@ -99,11 +103,11 @@ const ChatScreen = () => {
 
             const localMessages = [
                 { id: 1, username: 'Kris', message: 'Hello' },
-                { id: 2, username: 'Krishnanand', message: 'Hi' },
+                { id: 2, username: 'Krishnanand ', message: 'Hi' },
                 { id: 3, username: 'Kris', message: 'How are you?' },
                 { id: 4, username: 'Kris', message: 'How are you?' },
-                { id: 5, username: 'Krishnanand', message: 'I"m stuck here please help me please' },
-                { id: 6, username: 'Krishnanand', message: '9.459296075730787, 76.52225665031116' },
+                { id: 5, username: 'Krishnanand ', message: 'I"m stuck here please help me please' },
+                { id: 6, username: 'Krishnanand ', message: '9.459296075730787, 76.52225665031116' },
                 { id: 7, username: 'Kris', message: 'Hi Ay' },
 
 
@@ -176,9 +180,10 @@ const ChatScreen = () => {
 
 
             <View style={inputContainerStyle}>
-                <Pressable style={styles.button} onPress={handleSendLocation}>
-                    <Entypo name="location-pin" size={28} color="#006ee6" />
+                <Pressable style={styles.button} onPress={fetchMessages}>
+                    <MaterialIcons name="refresh" size={28} color="#006ee6" />
                 </Pressable>
+
                 <TextInput
                     style={styles.input}
                     value={inputMessage}
@@ -186,6 +191,10 @@ const ChatScreen = () => {
                     placeholder=""
                     multiline
                 />
+
+                <Pressable style={styles.button} onPress={handleSendLocation}>
+                    <Entypo name="location-pin" size={28} color="#006ee6" />
+                </Pressable>
 
                 <Pressable style={styles.button} onPress={handleSendMessage}>
                     <Feather name="send" size={26} color="#006ee6" />
@@ -265,21 +274,16 @@ const styles = StyleSheet.create({
     inputContainer: {
         backgroundColor: "#eee",
         paddingTop: 10,
-        paddingBottom: 30,
         flexDirection: 'row',
-
         paddingHorizontal: 20,
         borderTopWidth: 1,
         borderTopColor: '#ccc',
-
-
     },
     input: {
         fontSize: 18,
-        paddingTop: 12,
         flex: 1,
         paddingHorizontal: 10,
-        paddingVertical: 8,
+        paddingBottom: 3,
         marginRight: 20,
         borderWidth: 1,
         height: 30,
