@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -11,9 +11,11 @@ const UserSetupScreen = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [address, setAddress] = useState('');
 
+
+
     const handleSaveUser = () => {
         if (username.trim() === '' || phoneNumber.trim() === '' || address.trim() === '') {
-            alert('Please fill in all fields.');
+            Alert.alert('Please fill in all fields.');
             return;
         }
 
@@ -27,18 +29,21 @@ const UserSetupScreen = () => {
                     [username, phoneNumber, address],
                     (_, { rowsAffected }) => {
                         if (rowsAffected > 0) {
-                            AsyncStorage.setItem('setupComplete', 'true').then(() => {
-                                console.log('Setup complete flag set.');
-                            }).catch((error) => {
-                                console.error('Error setting setup complete flag:', error);
-                            });
-                            alert('User saved successfully!');
-                            navigation.navigate('home');
+                            AsyncStorage.setItem('setupComplete', 'true')
+                                .then(() => {
+                                    console.log('Setup complete flag set.');
+                                    // Replace setup screen with home screen
+                                    navigation.replace('home', { user: true });
+                                })
+                                .catch((error) => {
+                                    console.error('Error setting setup complete flag:', error);
+                                });
+                            Alert.alert('User saved successfully!');
                             setUsername('');
                             setPhoneNumber('');
                             setAddress('');
                         } else {
-                            alert('Failed to save user.');
+                            Alert.alert('Failed to save user.');
                         }
                     }
                 );

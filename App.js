@@ -10,21 +10,10 @@ import Home from './Screens/Home';
 import ChatScreen from './Screens/Chat';
 import { Button } from 'react-native';
 import { Map } from './Screens/Map';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [setupCompleted, setSetupCompleted] = useState(true);
-
-  useEffect(() => {
-    // Check if the setup is completed
-    AsyncStorage.getItem('setupCompleted').then((value) => {
-      if (value === 'true') {
-        setSetupCompleted(true);
-      }
-    });
-  }, []);
-
 
   const handleClearMessage = async () => {
 
@@ -37,7 +26,7 @@ export default function App() {
         method: 'POST'
       });
       console.log("cleared")
-      setRefreshKey(prevKey => prevKey + 1);
+
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -45,12 +34,12 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={setupCompleted ? 'home' : 'setup'}>
+      <Stack.Navigator initialRouteName='home'>
+
         <Stack.Screen name="setup" component={UserSetupScreen} />
         <Stack.Screen name="login" component={Login} />
         <Stack.Screen name="home" component={Home} />
         <Stack.Screen name="map" component={Map} />
-
         <Stack.Screen name="chat" component={ChatScreen} options={{
           headerTitle: "demo",
           headerRight: () => (
@@ -62,7 +51,7 @@ export default function App() {
         }} />
 
       </Stack.Navigator>
-    </NavigationContainer>
+    </NavigationContainer >
   );
 }
 
