@@ -32,7 +32,7 @@ const ChatScreen = () => {
             if (coords) {
                 const { longitude, latitude } = coords;
                 setLocation({ longitude, latitude });
-                setInputMessage(`Longitude: ${longitude}, Latitude: ${latitude}`);
+                setInputMessage(`${latitude},${longitude}`);
                 handleSendMessage();
             } else {
                 setErrorMsg('Failed to get location coordinates');
@@ -44,6 +44,7 @@ const ChatScreen = () => {
         }
     };
 
+    console.log(inputMessage);
     useEffect(() => {
         retrieveData();
     }, []);
@@ -129,7 +130,7 @@ const ChatScreen = () => {
                         {/* Check if message contains latitude and longitude */}
                         {item.message.includes(',') ? (
                             <Pressable onPress={() => {
-                                const [latitude, longitude] = item.message.split(', ');
+                                const [latitude, longitude] = item.message.split(',');
                                 handlePressLocation(parseFloat(latitude), parseFloat(longitude));
                             }}>
                                 <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
