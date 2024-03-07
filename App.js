@@ -8,9 +8,11 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Home from './Screens/Home';
 import ChatScreen from './Screens/Chat';
-import { Button } from 'react-native';
+import { Button, Platform } from 'react-native';
 import { Map } from './Screens/Map';
-import { RootSiblingParent } from 'react-native-root-siblings';
+import { MaterialIcons } from '@expo/vector-icons';
+import { StyleSheet } from 'react-native';
+import { TouchableOpacity, View, Text } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -40,19 +42,29 @@ export default function App() {
         <Stack.Screen name="login" component={Login} />
         <Stack.Screen name="home" component={Home} />
         <Stack.Screen name="map" component={Map} />
-        <Stack.Screen name="chat" component={ChatScreen} options={{
-          headerTitle: "demo",
-          headerRight: () => (
-            <Button
-              onPress={handleClearMessage}
-              title="Clear"
-              color="red"
-            />)
-        }} />
+        <Stack.Screen
+          name="chat"
+          component={ChatScreen}
+          options={{
+            headerTitle: "demo",
+            headerRight: () => (
+              <TouchableOpacity onPress={handleClearMessage}>
+                <View style={styles.buttonContainer}>
+                  <Text style={[styles.buttonText, { fontSize: Platform.OS === 'ios' ? 16 : 14 }]}>Clear chat</Text>
+                </View>
+              </TouchableOpacity>
+            )
+          }}
+        />
 
       </Stack.Navigator>
-    </NavigationContainer >
+    </NavigationContainer>
   );
 }
 
+const styles = StyleSheet.create({
 
+  buttonText: {
+    color: 'red',
+  },
+});
