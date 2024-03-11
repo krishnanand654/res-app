@@ -97,9 +97,11 @@ const ChatScreen = () => {
 
     const fetchMessages = async () => {
         try {
-            const response = await fetch('http://10.10.10.1/messages');
+            const response = await fetch('https://resnet-server.onrender.com/messages');
             const data = await response.json();
-            setMessages(data.messages);
+            // setMessages(data.messages);
+
+
 
             // const localMessages = [
             //     { id: 1, username: 'Kris', message: 'Hello' },
@@ -118,6 +120,8 @@ const ChatScreen = () => {
                 message: decodeURIComponent(msg.message)
             }));
 
+            console.log(decodedMessages);
+
             // Set the decoded messages to state
             setMessages(decodedMessages);
 
@@ -135,7 +139,7 @@ const ChatScreen = () => {
             return;
         }
 
-        const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${senderName}`;
+        const url = `https://resnet-server.onrender.com/send?message=${encodeURIComponent(inputMessage)}&username=${senderName}&receiver=null&phoneNumber=949543470`;
 
         try {
             await fetch(url, {
