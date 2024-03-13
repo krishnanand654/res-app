@@ -37,8 +37,12 @@ export default function Home() {
                     [],
                     (_, { rows }) => {
                         if (rows.length > 0) {
+                            console.log(rows);
                             setUsername(rows.item(0).username);
                             AsyncStorage.setItem('username', rows.item(0).username).then(() => {
+                                Toast.show(rows.item(0).username, {
+                                    duration: Toast.durations.LONG,
+                                });
                                 console.log('userset');
                             }).catch((error) => {
                                 console.error('Error setting setup complete flag:', error);

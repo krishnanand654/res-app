@@ -228,7 +228,6 @@ const ChatScreen = ({ route }) => {
                             styles.messageContainer,
                             item.phoneNumber === senderName ? styles.senderMessage : styles.receiverMessage
                         ]}>
-                            {console.log(item.receiver)}
                             <Text style={[styles.username, item.phoneNumber === senderName ? styles.senderName : styles.receiverName]}>{item.username}</Text>
                             {/* Check if message contains latitude and longitude */}
                             {item.message.includes(',') ? (

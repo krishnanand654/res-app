@@ -12,7 +12,7 @@ const ChatListScreen = () => {
     const [user, setUsername] = useState('');
     const [phoneExist, setPhoneExist] = useState(false);
     const [refresh, setRefresh] = useState(false);
-    const [isConnecting, setIsConnecting] = useState(true); // Track WebSocket connection status
+    const [isConnecting, setIsConnecting] = useState(false); // Track WebSocket connection status
 
     const navigation = useNavigation();
 
@@ -132,8 +132,7 @@ const ChatListScreen = () => {
             phoneNumber: item.phoneNumber
         });
     };
-
-
+    const distinctMessages = messages.filter((msg, index, self) => self.findIndex(m => m.phoneNumber === msg.phoneNumber) === index);
     return (
         <RootSiblingParent>
             <View style={styles.container}>
@@ -141,15 +140,16 @@ const ChatListScreen = () => {
                     <ActivityIndicator size="large" color="#0000ff" />
                 ) : phoneExist ? (
                     <FlatList
-                        data={messages}
+                        data={distinctMessages}
                         renderItem={({ item }) => (item.phoneNumber != phone ? (
-                            <TouchableHighlight onPress={() => handleItemPress(item)}>
-                                <View style={styles.itemContainer}>
-                                    <Text style={styles.username}>{item.username}</Text>
-                                    <Text style={styles.phoneNumber}>{item.phoneNumber}</Text>
-                                    <Text style={styles.status}>{item.message}</Text>
-                                </View>
-                            </TouchableHighlight>) : null
+                            <>
+                                <TouchableHighlight onPress={() => handleItemPress(item)}>
+                                    <View style={styles.itemContainer}>
+                                        <Text style={styles.username}>{item.username}</Text>
+                                        <Text style={styles.phoneNumber}>{item.phoneNumber}</Text>
+                                        <Text style={styles.status}>{item.message}</Text>
+                                    </View>
+                                </TouchableHighlight></>) : null
                         )}
                         keyExtractor={item => item.id.toString()}
                     />
