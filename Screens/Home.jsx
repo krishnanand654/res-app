@@ -114,8 +114,8 @@ export default function Home() {
 
             <Tab.Screen
                 name="Home"
-                // component={ChatListScreen}
-                component={WebSocketScreen}
+                component={ChatListScreen}
+                // component={WebSocketScreen}
                 initialParams={{ phone: username }}
                 options={{
                     tabBarLabel: 'Home',
