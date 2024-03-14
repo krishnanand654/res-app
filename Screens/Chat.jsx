@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
-import { View, Text, TextInput, Button, Image, FlatList, StyleSheet, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-root-toast';
 import { RootSiblingParent } from 'react-native-root-siblings';
+import { Image } from 'expo-image';
 
 const ChatScreen = ({ route }) => {
     const { username, phoneNumber } = route.params;
@@ -250,6 +251,11 @@ const ChatScreen = ({ route }) => {
                 <View style={inputContainerStyle}>
                     <Pressable style={styles.button} onPress={fetchMessages}>
                         <MaterialIcons name="refresh" size={28} color="#006ee6" />
+                        {/* <Image
+                            style={styles.reloadIcon}
+                            source={require('../assets/reload.png')}
+
+                        /> */}
                     </Pressable>
 
                     <TextInput
@@ -262,14 +268,20 @@ const ChatScreen = ({ route }) => {
 
                     <Pressable style={styles.buttonLoc} onPress={handleSendLocation}>
                         <Entypo name="location-pin" size={28} color="#006ee6" />
+
+                        {/* <Image
+                            style={styles.LocIcon}
+                            source={require('../assets/location.png')}
+                        /> */}
                     </Pressable>
 
                     <Pressable style={styles.button} onPress={handleSendMessage}>
-                        {/* <Feather name="send" size={26} color="#006ee6" /> */}
-                        <Image
+                        <Feather name="send" size={26} color="#006ee6" />
+                        {/* <Image
                             style={styles.sendIcon}
                             source={require('../assets/send2.png')}
-                        />
+                            placeholder="send"
+                        /> */}
                     </Pressable>
                 </View>
                 {loadingLocation && (
@@ -283,9 +295,23 @@ const ChatScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
+    reloadIcon: {
+        marginLeft: 15,
+        marginRight: 10,
+        marginTop: 3,
+        width: 24,
+        height: 24,
+    },
+    LocIcon: {
+
+        marginTop: 3,
+        width: 24,
+        height: 24,
+    },
     sendIcon: {
-        width: 27,
-        height: 27,
+        marginTop: 0,
+        width: 29,
+        height: 29,
     },
     linkIcon: {
         marginLeft: 10

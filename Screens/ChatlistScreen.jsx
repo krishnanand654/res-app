@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { View, Text, Pressable, FlatList, StyleSheet, TouchableHighlight, ActivityIndicator } from "react-native"
+import { View, Text, Pressable, FlatList, Image, StyleSheet, TouchableHighlight, ActivityIndicator } from "react-native"
 import React, { useEffect, useState } from "react";
 import { FAB } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
@@ -26,8 +26,8 @@ const ChatListScreen = () => {
                 setPhoneNumber(storedPhone);
                 setUsername(storedUser);
 
-                const response = await fetch('https://resnet-server.onrender.com/messages');
-                // const response = await fetch('http://10.10.10.1/messages');
+                // const response = await fetch('https://resnet-server.onrender.com/messages');
+                const response = await fetch('http://10.10.10.1/messages');
 
 
                 if (response.ok) {
@@ -100,8 +100,8 @@ const ChatListScreen = () => {
 
     const handleSendMessage = async () => {
         const inputMessage = 'online';
-        const url = `https://resnet-server.onrender.com/send?message=${encodeURIComponent(inputMessage)}&username=${user}&receiver=null&phoneNumber=${phone}`;
-        // const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${user}&receiver=null&phoneNumber=${phone}`;
+        // const url = `https://resnet-server.onrender.com/send?message=${encodeURIComponent(inputMessage)}&username=${user}&receiver=null&phoneNumber=${phone}`;
+        const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${user}&receiver=null&phoneNumber=${phone}`;
 
 
         try {
@@ -160,7 +160,19 @@ const ChatListScreen = () => {
                 }
 
                 <FAB
-                    icon="plus"
+                    icon={() => (
+                        <Image
+                            source={require('../assets/reload.png')}
+                            style={[
+
+                                {
+                                    width: 25,
+                                    height: 24,
+
+                                }
+                            ]}
+                        />
+                    )}
                     style={styles.fab}
                     onPress={() => { setRefresh(!refresh) }}
                 />
