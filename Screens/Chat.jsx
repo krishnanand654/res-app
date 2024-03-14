@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { View, Text, TextInput, Button, Image, FlatList, StyleSheet, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -260,12 +260,16 @@ const ChatScreen = ({ route }) => {
                         multiline
                     />
 
-                    <Pressable style={styles.button} onPress={handleSendLocation}>
+                    <Pressable style={styles.buttonLoc} onPress={handleSendLocation}>
                         <Entypo name="location-pin" size={28} color="#006ee6" />
                     </Pressable>
 
                     <Pressable style={styles.button} onPress={handleSendMessage}>
-                        <Feather name="send" size={26} color="#006ee6" />
+                        {/* <Feather name="send" size={26} color="#006ee6" /> */}
+                        <Image
+                            style={styles.sendIcon}
+                            source={require('../assets/send2.png')}
+                        />
                     </Pressable>
                 </View>
                 {loadingLocation && (
@@ -279,11 +283,18 @@ const ChatScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
+    sendIcon: {
+        width: 27,
+        height: 27,
+    },
     linkIcon: {
         marginLeft: 10
     },
     button: {
-        marginRight: 15,
+        marginRight: 10,
+    },
+    buttonLoc: {
+        marginRight: 18,
     },
     username: {
         marginBottom: 5
@@ -344,7 +355,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#eee",
         paddingTop: 10,
         flexDirection: 'row',
-        paddingHorizontal: 20,
+        paddingHorizontal: 10,
         borderTopWidth: 1,
         borderTopColor: '#ccc',
     },

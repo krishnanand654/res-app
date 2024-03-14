@@ -26,8 +26,8 @@ const ChatListScreen = () => {
                 setPhoneNumber(storedPhone);
                 setUsername(storedUser);
 
-                // const response = await fetch('https://resnet-server.onrender.com/messages');
-                const response = await fetch('http://10.10.10.1/messages');
+                const response = await fetch('https://resnet-server.onrender.com/messages');
+                // const response = await fetch('http://10.10.10.1/messages');
 
 
                 if (response.ok) {
@@ -79,9 +79,9 @@ const ChatListScreen = () => {
             // Convert data object to a string for displaying in the toast
             const dataString = JSON.stringify(data);
 
-            Toast.show(dataString, {
-                duration: Toast.durations.LONG,
-            });
+            // Toast.show(dataString, {
+            //     duration: Toast.durations.LONG,
+            // });
 
             const decodedMessages = data.messages.map(msg => ({
                 ...msg,
@@ -100,8 +100,8 @@ const ChatListScreen = () => {
 
     const handleSendMessage = async () => {
         const inputMessage = 'online';
-        // const url = `https://resnet-server.onrender.com/send?message=${encodeURIComponent(inputMessage)}&username=${user}&receiver=null&phoneNumber=${phone}`;
-        const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${user}&receiver=null&phoneNumber=${phone}`;
+        const url = `https://resnet-server.onrender.com/send?message=${encodeURIComponent(inputMessage)}&username=${user}&receiver=null&phoneNumber=${phone}`;
+        // const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${user}&receiver=null&phoneNumber=${phone}`;
 
 
         try {

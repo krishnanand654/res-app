@@ -156,7 +156,7 @@ function SettingsScreen() {
     const deleteDatabase = async () => {
         try {
             // Close the database connection
-            db._db.close();
+            // db._db.close();
 
             // Get the path of the SQLite database file
             const dbPath = `${FileSystem.documentDirectory}SQLite/userdb.db`;
