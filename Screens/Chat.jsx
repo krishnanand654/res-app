@@ -250,12 +250,12 @@ const ChatScreen = ({ route }) => {
 
                 <View style={inputContainerStyle}>
                     <Pressable style={styles.button} onPress={fetchMessages}>
-                        <MaterialIcons name="refresh" size={28} color="#006ee6" />
-                        {/* <Image
+                        {/* <MaterialIcons name="refresh" size={28} color="#006ee6" /> */}
+                        <Image
                             style={styles.reloadIcon}
                             source={require('../assets/reload.png')}
-
-                        /> */}
+                            accessibilityLabel="reload"
+                        />
                     </Pressable>
 
                     <TextInput
@@ -267,21 +267,23 @@ const ChatScreen = ({ route }) => {
                     />
 
                     <Pressable style={styles.buttonLoc} onPress={handleSendLocation}>
-                        <Entypo name="location-pin" size={28} color="#006ee6" />
+                        {/* <Entypo name="location-pin" size={28} color="#006ee6" /> */}
 
-                        {/* <Image
+                        <Image
                             style={styles.LocIcon}
                             source={require('../assets/location.png')}
-                        /> */}
+                            accessibilityLabel="loc"
+                        />
                     </Pressable>
 
                     <Pressable style={styles.button} onPress={handleSendMessage}>
-                        <Feather name="send" size={26} color="#006ee6" />
-                        {/* <Image
+                        {/* <Feather name="send" size={26} color="#006ee6" /> */}
+                        <Image
                             style={styles.sendIcon}
                             source={require('../assets/send2.png')}
                             placeholder="send"
-                        /> */}
+                            accessibilityLabel="send"
+                        />
                     </Pressable>
                 </View>
                 {loadingLocation && (

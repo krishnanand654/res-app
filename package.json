@@ -32,7 +32,8 @@
     "react-native-web": "~0.19.6",
     "react-native-websocket": "^1.0.2",
     "typescript": "^5.3.0",
-    "expo-image": "~1.10.6"
+    "expo-image": "~1.10.6",
+    "expo-dev-client": "~3.3.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
