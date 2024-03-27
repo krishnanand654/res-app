@@ -5,6 +5,16 @@
 #include <ArduinoJson.h>
 #include <WebSocketsServer.h>
 
+#include <Servo.h>
+
+#define SERVO_PIN D1   
+#define LDR_PIN A0 
+#define LED_PIN 2 
+
+Servo servo;
+int lastLightValue = 0;
+int lightValue = 0;
+
 // Configuration
 const byte DNS_PORT = 53;
 const String messagesFile = "/messages.txt";
@@ -23,9 +33,17 @@ String messages;
 // Previous modification timestamp of the messages file
 unsigned long prevFileModifiedTime = 0;
 
+unsigned long previousMillis = 0;
+const long interval = 1000; // Blink interval in milliseconds
+bool ledState = false; 
+
 void setup() {
   Serial.begin(115200);
   SPIFFS.begin();
+  
+  if (SERVO_PIN != -1 && LDR_PIN != -1) {
+    servo.attach(SERVO_PIN);
+  }
 
   // WiFi setup
   WiFi.mode(WIFI_AP);
@@ -55,6 +73,9 @@ void setup() {
 
   // Start HTTP server
   webServer.begin();
+
+  // Initialize LED pin
+  pinMode(LED_PIN, OUTPUT);
 }
 
 void loop() {
@@ -67,6 +88,49 @@ void loop() {
   if (millis() - prevCheckTime > 5000) {
     prevCheckTime = millis();
     checkFileChanges();
+  }
+
+  // Sample LDR sensor value every 100 milliseconds
+  static unsigned long lastSampleTime = 0;
+  if (millis() - lastSampleTime >= 100) {
+    lastSampleTime = millis();
+    lightValue = analogRead(LDR_PIN);
+    Serial.print("Light Value: ");
+    Serial.println(lightValue);
+
+    if (SERVO_PIN != -1 && LDR_PIN != -1) {
+      if (lightValue > 500) {
+        rotateOpposite();
+      }
+    }
+  }
+
+   unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    // Save the last time the LED blinked
+    previousMillis = currentMillis;
+
+    // Toggle LED state
+    ledState = !ledState;
+
+    // Apply LED state
+    digitalWrite(LED_PIN, ledState ? HIGH : LOW);
+  }
+}
+
+void rotateOpposite() {
+  int currentPos = servo.read();
+  if(currentPos == 180){
+    for (int angle = 180; angle >= 0; angle--) {
+    servo.write(angle); // Set the servo position
+    delay(15); // Delay for smoother motion, adjust as needed
+  }
+   
+  }else{
+     for (int angle = 0; angle <= 180; angle++) {
+    servo.write(angle); // Set the servo position
+    delay(15); // Delay for smoother motion, adjust as needed
+  }
   }
 }
 
