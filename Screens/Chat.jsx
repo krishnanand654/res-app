@@ -6,8 +6,12 @@ import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Toast from 'react-native-root-toast';
+import { RootSiblingParent } from 'react-native-root-siblings';
+import { Image } from 'expo-image';
 
-const ChatScreen = () => {
+const ChatScreen = ({ route }) => {
+    const { username, phoneNumber } = route.params;
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
@@ -15,6 +19,7 @@ const ChatScreen = () => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [loadingLocation, setLoadingLocation] = useState(false);
+    const [receiver, setReceiver] = useState('');
 
     const navigation = useNavigation();
 
@@ -82,14 +87,20 @@ const ChatScreen = () => {
 
     const retrieveData = async () => {
         try {
-            const value = await AsyncStorage.getItem('username');
+            const value = await AsyncStorage.getItem('phone');
+            const uservalue = await AsyncStorage.getItem('username');
             if (value !== null) {
-                setSenderName(value);
+                // Trim spaces before and after the name
+                const trimmedValue = value.trim();
+                const trimmedUserValue = uservalue.trim();
+                setSenderName(trimmedValue);
+                setReceiver(trimmedUserValue);
             }
         } catch (error) {
             console.error('Error retrieving data:', error);
         }
     };
+
 
     useEffect(() => {
         fetchMessages();
@@ -97,35 +108,93 @@ const ChatScreen = () => {
 
     const fetchMessages = async () => {
         try {
-            // const response = await fetch('http://10.10.10.1/messages');
-            // const data = await response.json();
+            // const response = await fetch('https://resnet-server.onrender.com/messages');
+            const response = await fetch('http://10.10.10.1/messages');
+            const data = await response.json();
             // setMessages(data.messages);
 
-            const localMessages = [
-                { id: 1, username: 'Kris', message: 'Hello' },
-                { id: 2, username: 'Krishnanand ', message: 'Hi' },
-                { id: 3, username: 'Kris', message: 'How are you?' },
-                { id: 4, username: 'Kris', message: 'How are you?' },
-                { id: 5, username: 'Krishnanand ', message: 'I"m stuck here please help me please' },
-                { id: 6, username: 'Krishnanand ', message: '9.459296075730787, 76.52225665031116' },
-                { id: 7, username: 'Kris', message: 'Hi Ay' },
 
 
-            ];
 
-            setMessages(localMessages);
+            // const localMessages = [
+            //     { id: 1, username: 'Kris', message: 'Hello' },
+            //     { id: 2, username: 'Krishnanand ', message: 'Hi' },
+            //     { id: 3, username: 'Kris', message: 'How are you?' },
+            //     { id: 4, username: 'Kris', message: 'How are you?' },
+            //     { id: 5, username: 'Krishnanand ', message: 'I"m stuck here please help me please' },
+            //     { id: 6, username: 'Krishnanand ', message: '9.459296075730787%2C76.52225665031116' },
+            //     { id: 7, username: 'Kris', message: 'Hi Ay' },
+
+
+            // ];
+
+            const decodedMessages = data.messages.map(msg => ({
+                ...msg,
+                message: decodeURIComponent(msg.message)
+            }));
+
+            console.log(decodedMessages);
+
+            // Set the decoded messages to state
+            setMessages(decodedMessages);
+
+            // setMessages(localMessages);
         } catch (error) {
             console.error('No messages');
             console.log('error', error)
         }
+
+
     };
+
+    useEffect(() => {
+
+        // Establish WebSocket connection when screen comes into focus
+        const ws = new WebSocket('ws://10.10.10.1:81');
+
+        ws.onopen = function (event) {
+            // setIsConnecting(false); // Set connection status to false when WebSocket connection is established
+            Toast.show('WebSocket connection established', {
+                duration: Toast.durations.LONG,
+            });
+            console.log('WebSocket connection established');
+        };
+
+        // Event listener for incoming messages
+        ws.onmessage = (event) => {
+            const jsonString = event.data;
+            const data = JSON.parse(jsonString);
+
+            // Convert data object to a string for displaying in the toast
+            const dataString = JSON.stringify(data);
+
+            // Toast.show(dataString, {
+            //     duration: Toast.durations.LONG,
+            // });
+
+            const decodedMessages = data.messages.map(msg => ({
+                ...msg,
+                message: decodeURIComponent(msg.message)
+            }));
+
+
+            setMessages(decodedMessages);
+        };
+
+        // Clean up WebSocket connection when screen loses focus or unmounts
+        return () => {
+            ws.close();
+        };
+    }, []);
+
 
     const handleSendMessage = async () => {
         if (inputMessage.trim() === '') {
             return;
         }
 
-        const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${senderName}`;
+        // const url = `https://resnet-server.onrender.com/send?message=${encodeURIComponent(inputMessage)}&username=${receiver}&receiver=${username}&phoneNumber=${senderName}`;
+        const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${receiver}&receiver=${username}&phoneNumber=${senderName}`;
 
         try {
             await fetch(url, {
@@ -147,74 +216,111 @@ const ChatScreen = () => {
 
         navigation.navigate('map', { latitude, longitude });
     };
-
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}
-        >
-            <FlatList
-                data={messages}
-                renderItem={({ item }) => (
-                    <View style={[
-                        styles.messageContainer,
-                        item.username === senderName ? styles.senderMessage : styles.receiverMessage
-                    ]}>
-                        <Text style={[styles.username, item.username === senderName ? styles.senderName : styles.receiverName]}>{item.username}</Text>
-                        {/* Check if message contains latitude and longitude */}
-                        {item.message.includes(',') ? (
-                            <Pressable onPress={() => {
-                                const [latitude, longitude] = item.message.split(',');
-                                handlePressLocation(parseFloat(latitude), parseFloat(longitude));
-                            }}>
-                                <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message} <Feather name="external-link" size={20} style={styles.linkIcon} /></Text>
+        <RootSiblingParent>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.container}
+            >
+                <FlatList
+                    data={messages}
+                    renderItem={({ item }) => (item.receiver === receiver && item.username === username || item.receiver === username && item.username === receiver ?
+                        <View style={[
+                            styles.messageContainer,
+                            item.phoneNumber === senderName ? styles.senderMessage : styles.receiverMessage
+                        ]}>
+                            <Text style={[styles.username, item.phoneNumber === senderName ? styles.senderName : styles.receiverName]}>{item.username}</Text>
+                            {/* Check if message contains latitude and longitude */}
+                            {item.message.includes(',') ? (
+                                <Pressable onPress={() => {
+                                    const [latitude, longitude] = item.message.split(',');
+                                    handlePressLocation(parseFloat(latitude), parseFloat(longitude));
+                                }}>
+                                    <Text style={[styles.messageText, item.phoneNumber === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message} <Feather name="external-link" size={20} style={styles.linkIcon} /></Text>
 
-                            </Pressable>
-                        ) : (
-                            <Text style={[styles.messageText, item.username === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
-                        )}
-                    </View>
-                )}
-                keyExtractor={(item) => item.id.toString()}
-            />
-
-
-            <View style={inputContainerStyle}>
-                <Pressable style={styles.button} onPress={fetchMessages}>
-                    <MaterialIcons name="refresh" size={28} color="#006ee6" />
-                </Pressable>
-
-                <TextInput
-                    style={styles.input}
-                    value={inputMessage}
-                    onChangeText={(text) => setInputMessage(text)}
-                    placeholder=""
-                    multiline
+                                </Pressable>
+                            ) : (
+                                <Text style={[styles.messageText, item.phoneNumber === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
+                            )}
+                        </View> : null
+                    )}
+                    keyExtractor={(item) => item.id.toString()}
                 />
 
-                <Pressable style={styles.button} onPress={handleSendLocation}>
-                    <Entypo name="location-pin" size={28} color="#006ee6" />
-                </Pressable>
 
-                <Pressable style={styles.button} onPress={handleSendMessage}>
-                    <Feather name="send" size={26} color="#006ee6" />
-                </Pressable>
-            </View>
-            {loadingLocation && (
-                <View style={styles.spinnerContainer}>
-                    <ActivityIndicator size="large" color="#0000ff" />
+                <View style={inputContainerStyle}>
+                    <Pressable style={styles.button} onPress={fetchMessages}>
+                        <MaterialIcons name="refresh" size={28} color="#006ee6" />
+                        {/* <Image
+                            style={styles.reloadIcon}
+                            source={require('../assets/reload.png')}
+
+                        /> */}
+                    </Pressable>
+
+                    <TextInput
+                        style={styles.input}
+                        value={inputMessage}
+                        onChangeText={(text) => setInputMessage(text)}
+                        placeholder=""
+                        multiline
+                    />
+
+                    <Pressable style={styles.buttonLoc} onPress={handleSendLocation}>
+                        <Entypo name="location-pin" size={28} color="#006ee6" />
+
+                        {/* <Image
+                            style={styles.LocIcon}
+                            source={require('../assets/location.png')}
+                        /> */}
+                    </Pressable>
+
+                    <Pressable style={styles.button} onPress={handleSendMessage}>
+                        <Feather name="send" size={26} color="#006ee6" />
+                        {/* <Image
+                            style={styles.sendIcon}
+                            source={require('../assets/send2.png')}
+                            placeholder="send"
+                        /> */}
+                    </Pressable>
                 </View>
-            )}
-        </KeyboardAvoidingView>
+                {loadingLocation && (
+                    <View style={styles.spinnerContainer}>
+                        <ActivityIndicator size="large" color="#0000ff" />
+                    </View>
+                )}
+            </KeyboardAvoidingView>
+        </RootSiblingParent>
     );
 };
 
 const styles = StyleSheet.create({
+    reloadIcon: {
+        marginLeft: 15,
+        marginRight: 10,
+        marginTop: 3,
+        width: 24,
+        height: 24,
+    },
+    LocIcon: {
+
+        marginTop: 3,
+        width: 24,
+        height: 24,
+    },
+    sendIcon: {
+        marginTop: 0,
+        width: 29,
+        height: 29,
+    },
     linkIcon: {
         marginLeft: 10
     },
     button: {
-        marginRight: 15,
+        marginRight: 10,
+    },
+    buttonLoc: {
+        marginRight: 18,
     },
     username: {
         marginBottom: 5
@@ -275,7 +381,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#eee",
         paddingTop: 10,
         flexDirection: 'row',
-        paddingHorizontal: 20,
+        paddingHorizontal: 10,
         borderTopWidth: 1,
         borderTopColor: '#ccc',
     },

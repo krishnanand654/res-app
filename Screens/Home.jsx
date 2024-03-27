@@ -12,9 +12,13 @@ import { useState, useEffect } from 'react';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import Toast from 'react-native-root-toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ChatListScreen from './ChatlistScreen';
+import WebSocketScreen from './WebSocketScreen';
 
 const Tab = createBottomTabNavigator();
 const db = SQLite.openDatabase('userdb.db');
+
+
 
 export default function Home() {
 
@@ -29,16 +33,29 @@ export default function Home() {
             // Fetch user's name from SQLite database
             db.transaction((tx) => {
                 tx.executeSql(
-                    'SELECT username FROM users;',
+                    'SELECT * FROM users;',
                     [],
                     (_, { rows }) => {
                         if (rows.length > 0) {
+                            console.log(rows);
                             setUsername(rows.item(0).username);
                             AsyncStorage.setItem('username', rows.item(0).username).then(() => {
+                                // Toast.show(rows.item(0).username, {
+                                //     duration: Toast.durations.LONG,
+                                // });
                                 console.log('userset');
                             }).catch((error) => {
                                 console.error('Error setting setup complete flag:', error);
                             });
+
+
+
+                            AsyncStorage.setItem('phone', rows.item(0).phoneNumber).then(() => {
+                                console.log('phoneSet');
+                            }).catch((error) => {
+                                console.error('Error setting setup complete flag:', error);
+                            });
+
                         }
                     },
                     (_, error) => {
@@ -98,9 +115,12 @@ export default function Home() {
                 />
             )}
         >
+
             <Tab.Screen
                 name="Home"
-                component={HomeScreen}
+                component={ChatListScreen}
+                // component={WebSocketScreen}
+                initialParams={{ phone: username }}
                 options={{
                     tabBarLabel: 'Home',
                     tabBarIcon: ({ color, size }) => {
@@ -108,6 +128,7 @@ export default function Home() {
                     },
                 }}
             />
+
             <Tab.Screen
                 name="Settings"
                 component={SettingsScreen}
@@ -122,21 +143,20 @@ export default function Home() {
     );
 }
 
-function HomeScreen() {
-    const navigation = useNavigation();
-    return (
-        <View style={styles.container}>
-            <Pressable onPress={() => { navigation.navigate('chat') }}><Text>chat</Text></Pressable>
-        </View>
-    );
-}
+// function HomeScreen() {
+//     const navigation = useNavigation();
+//     console.log(phoneNumber);
+//     return (
+//         <ChatListScreen customProps={phoneNumber} />
+//     );
+// }
 
 function SettingsScreen() {
     const navigation = useNavigation();
     const deleteDatabase = async () => {
         try {
             // Close the database connection
-            db._db.close();
+            // db._db.close();
 
             // Get the path of the SQLite database file
             const dbPath = `${FileSystem.documentDirectory}SQLite/userdb.db`;
