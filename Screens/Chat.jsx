@@ -15,11 +15,14 @@ const ChatScreen = ({ route }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
+    const [senderNumber, setSenderNumber] = useState('');
     const [senderName, setSenderName] = useState('');
+
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [loadingLocation, setLoadingLocation] = useState(false);
     const [receiver, setReceiver] = useState('');
+    const [imageError, setImageError] = useState(false);
 
     const navigation = useNavigation();
 
@@ -90,11 +93,10 @@ const ChatScreen = ({ route }) => {
             const value = await AsyncStorage.getItem('phone');
             const uservalue = await AsyncStorage.getItem('username');
             if (value !== null) {
-                // Trim spaces before and after the name
                 const trimmedValue = value.trim();
                 const trimmedUserValue = uservalue.trim();
-                setSenderName(trimmedValue);
-                setReceiver(trimmedUserValue);
+                setSenderNumber(trimmedValue);
+                setSenderName(trimmedUserValue);
             }
         } catch (error) {
             console.error('Error retrieving data:', error);
@@ -168,9 +170,9 @@ const ChatScreen = ({ route }) => {
             // Convert data object to a string for displaying in the toast
             const dataString = JSON.stringify(data);
 
-            // Toast.show(dataString, {
-            //     duration: Toast.durations.LONG,
-            // });
+            Toast.show(dataString, {
+                duration: Toast.durations.LONG,
+            });
 
             const decodedMessages = data.messages.map(msg => ({
                 ...msg,
@@ -193,8 +195,8 @@ const ChatScreen = ({ route }) => {
             return;
         }
 
-        // const url = `https://resnet-server.onrender.com/send?message=${encodeURIComponent(inputMessage)}&username=${receiver}&receiver=${username}&phoneNumber=${senderName}`;
-        const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${receiver}&receiver=${username}&phoneNumber=${senderName}`;
+        // const url = `https://resnet-server.onrender.com/send?message=${encodeURIComponent(inputMessage)}&username=${senderName}&receiver=${phoneNumber}&phoneNumber=${senderNumber}`;
+        const url = `http://10.10.10.1/send?message=${encodeURIComponent(inputMessage)}&username=${senderName}&receiver=${phoneNumber}&phoneNumber=${senderNumber}`;
 
         try {
             await fetch(url, {
@@ -224,23 +226,23 @@ const ChatScreen = ({ route }) => {
             >
                 <FlatList
                     data={messages}
-                    renderItem={({ item }) => (item.receiver === receiver && item.username === username || item.receiver === username && item.username === receiver ?
+                    renderItem={({ item }) => (item.receiver === phoneNumber && item.phoneNumber === senderNumber || item.receiver === senderNumber && item.phoneNumber === phoneNumber ?
                         <View style={[
                             styles.messageContainer,
-                            item.phoneNumber === senderName ? styles.senderMessage : styles.receiverMessage
+                            item.phoneNumber === senderNumber ? styles.senderMessage : styles.receiverMessage
                         ]}>
-                            <Text style={[styles.username, item.phoneNumber === senderName ? styles.senderName : styles.receiverName]}>{item.username}</Text>
+                            <Text style={[styles.username, item.phoneNumber === senderNumber ? styles.sender : styles.receiverName]}>{item.username}</Text>
                             {/* Check if message contains latitude and longitude */}
                             {item.message.includes(',') ? (
                                 <Pressable onPress={() => {
                                     const [latitude, longitude] = item.message.split(',');
                                     handlePressLocation(parseFloat(latitude), parseFloat(longitude));
                                 }}>
-                                    <Text style={[styles.messageText, item.phoneNumber === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message} <Feather name="external-link" size={20} style={styles.linkIcon} /></Text>
+                                    <Text style={[styles.messageText, item.phoneNumber === senderNumber ? styles.senderMessageText : styles.receiverMessageText]}>{item.message} <Feather name="external-link" size={20} style={styles.linkIcon} /></Text>
 
                                 </Pressable>
                             ) : (
-                                <Text style={[styles.messageText, item.phoneNumber === senderName ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
+                                <Text style={[styles.messageText, item.phoneNumber === senderNumber ? styles.senderMessageText : styles.receiverMessageText]}>{item.message}</Text>
                             )}
                         </View> : null
                     )}
@@ -278,12 +280,17 @@ const ChatScreen = ({ route }) => {
 
                     <Pressable style={styles.button} onPress={handleSendMessage}>
                         {/* <Feather name="send" size={26} color="#006ee6" /> */}
-                        <Image
-                            style={styles.sendIcon}
-                            source={require('../assets/send2.png')}
-                            placeholder="send"
-                            accessibilityLabel="send"
-                        />
+                        {imageError ? (
+                            <Text>Send</Text>
+                        ) : (
+                            <Image
+                                style={styles.sendIcon}
+                                source={require('../assets/send2.png')}
+                                placeholder="send"
+                                accessibilityLabel="send"
+                                onError={() => setImageError(true)}
+                            />
+                        )}
                     </Pressable>
                 </View>
                 {loadingLocation && (

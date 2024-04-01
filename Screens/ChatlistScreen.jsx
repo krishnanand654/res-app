@@ -6,7 +6,45 @@ import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-root-toast';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { useNavigation } from "@react-navigation/native";
+import { useRef } from 'react';
+import BottomSheet from '@gorhom/bottom-sheet';
+import { Button } from 'react-native';
+import { useMemo } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useCallback } from 'react';
+import { Switch } from 'react-native-paper';
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { Platform } from "react-native";
+
+
+
+const margin = Platform.OS === 'ios' ? 20 : 10;
+
 const ChatListScreen = () => {
+
+    const [isSwitchOn, setIsSwitchOn] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const onToggleSwitch = () => {
+        setIsSwitchOn(!isSwitchOn)
+        setLoading(!isSwitchOn);
+        handleSendMessage();
+
+    };
+
+
+
+
+    const snapPoints = useMemo(() => ['25%', '70%', '90%'], []);
+
+    const bottomSheetRef = useRef(null); // Use useRef() here
+
+    const handleClosePress = useCallback(() => bottomSheetRef.current?.close(), [bottomSheetRef]);
+    // const handleOpenPress = useCallback(() => bottomSheetRef.current?.expand(), [bottomSheetRef]);
+    const handlePresentModalPress = useCallback(() => {
+        bottomSheetRef.current?.present();
+    }, []);
+
     const [messages, setMessages] = useState([]);
     const [phone, setPhoneNumber] = useState('');
     const [user, setUsername] = useState('');
@@ -16,13 +54,19 @@ const ChatListScreen = () => {
 
     const navigation = useNavigation();
 
+
     useEffect(() => {
+        handlePresentModalPress(); // Open the modal when the component mounts
+    }, [])
+
+    useEffect(() => {
+
         const fetchData = async () => {
             try {
                 // Retrieve the phone number from AsyncStorage
                 const storedPhone = await AsyncStorage.getItem('phone');
                 const storedUser = await AsyncStorage.getItem('username');
-
+                console.log(storedPhone);
                 setPhoneNumber(storedPhone);
                 setUsername(storedUser);
 
@@ -42,7 +86,7 @@ const ChatListScreen = () => {
                     const phoneNumberExistsInMessages = data.messages.some(msg => msg.phoneNumber === storedPhone);
 
                     setPhoneExist(phoneNumberExistsInMessages);
-
+                    setLoading(false);
                     // Set the decoded messages to state
                     setMessages(decodedMessages);
                 } else {
@@ -56,7 +100,7 @@ const ChatListScreen = () => {
         };
 
         fetchData();
-    }, [refresh]);
+    }, [refresh,]);
 
     useEffect(() => {
 
@@ -90,6 +134,9 @@ const ChatListScreen = () => {
 
 
             setMessages(decodedMessages);
+            setLoading(false);
+            setIsSwitchOn(false);
+            handleClosePress();
         };
 
         // Clean up WebSocket connection when screen loses focus or unmounts
@@ -112,7 +159,9 @@ const ChatListScreen = () => {
                 },
             }).then((response) => {
                 if (response.ok) {
+
                     setRefresh(!refresh);
+
                 } else {
                     setRefresh(false);
                 }
@@ -133,6 +182,8 @@ const ChatListScreen = () => {
         });
     };
     const distinctMessages = messages.filter((msg, index, self) => self.findIndex(m => m.phoneNumber === msg.phoneNumber) === index);
+
+
     return (
         <RootSiblingParent>
             <View style={styles.container}>
@@ -154,12 +205,29 @@ const ChatListScreen = () => {
                         keyExtractor={item => item.id.toString()}
                     />
                 ) : (
-                    <TouchableHighlight onPress={handleSendMessage}>
-                        <Text>Set Online</Text>
-                    </TouchableHighlight>)
+
+                    <View style={styles.container}>
+                        <BottomSheetModal ref={bottomSheetRef} index={0} snapPoints={snapPoints}
+
+                            backgroundStyle={{ backgroundColor: "white" }}>
+
+                            {/* <Button title="close" onPress={handleClosePress} /> */}
+                            <View style={styles.switchctn}>
+                                <Text style={styles.switchText}>Go Online</Text>
+                                <Switch value={isSwitchOn} onValueChange={onToggleSwitch} color={'#5BC236'} />
+                            </View>
+                            <Text style={styles.onlineinfo} >Activate the toggle button to set your status as online, enabling others to find you easily. Simultaneously, you'll be able to discover others who are also online.</Text>
+                        </BottomSheetModal>
+                        <View style={styles.landing}>
+                            <Text>Waiting to get online...</Text>
+                            <Button style={styles.onlineBtn} title='Go Online' onPress={handlePresentModalPress} />
+                        </View>
+                    </View>
+                )
                 }
 
                 <FAB
+
                     icon={() => (
                         <Image
                             source={require('../assets/reload.png')}
@@ -173,11 +241,16 @@ const ChatListScreen = () => {
                             ]}
                         />
                     )}
-                    style={styles.fab}
+                    style={[styles.fab, { backgroundColor: 'white' }]}
                     onPress={() => { setRefresh(!refresh) }}
                 />
 
             </View>
+            {loading && (
+                <View style={styles.spinnerContainer}>
+                    <ActivityIndicator size="large" color="#0000ff" />
+                </View>
+            )}
         </RootSiblingParent>
 
     )
@@ -187,6 +260,44 @@ const ChatListScreen = () => {
 const styles = StyleSheet.create({
     container: {
         height: '100%',
+    },
+    spinnerContainer: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    landing: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    onlineinfo: {
+        fontSize: 14,
+        marginTop: margin,
+        color: 'gray',
+        paddingLeft: 30,
+        paddingRight: 30,
+        width: '100%',
+
+    },
+    switchctn: {
+        marginTop: margin,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingLeft: 30,
+        paddingRight: 30,
+
+    },
+    onlineBtn: {
+        backgroundColor: 'white',
+        marginTop: margin,
+    },
+    switchText: {
+        marginTop: 6,
+        fontSize: 18,
+        fontWeight: '400'
+
     },
     itemContainer: {
         padding: 10,
@@ -209,7 +320,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         margin: 10,
         right: 20,
-        bottom: 20, // Adjust this value to set the desired distance from the bottom
+        bottom: 20,
+
+        // Adjust this value to set the desired distance from the bottom
     }
 
 });

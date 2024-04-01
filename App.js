@@ -13,6 +13,10 @@ import { Map } from './Screens/Map';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity, View, Text } from 'react-native';
+import SettingsScreen from './Screens/SettingsScreen';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -35,30 +39,35 @@ export default function App() {
   };
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName='home'>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
 
-        <Stack.Screen name="setup" component={UserSetupScreen} />
-        <Stack.Screen name="login" component={Login} />
-        <Stack.Screen name="home" component={Home} />
-        <Stack.Screen name="map" component={Map} />
-        <Stack.Screen
-          name="chat"
-          component={ChatScreen}
-          options={{
-            headerTitle: "demo",
-            headerRight: () => (
-              <TouchableOpacity onPress={handleClearMessage}>
-                <View style={styles.buttonContainer}>
-                  <Text style={[styles.buttonText, { fontSize: Platform.OS === 'ios' ? 16 : 14 }]}>Clear chat</Text>
-                </View>
-              </TouchableOpacity>
-            )
-          }}
-        />
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName='home'>
+            <Stack.Screen name="setup" component={UserSetupScreen} />
+            <Stack.Screen name="login" component={Login} />
+            <Stack.Screen name="home" component={Home} options={{ headerShown: false, headerTintColor: 'blue' }} />
+            <Stack.Screen name="setting" component={SettingsScreen} />
+            <Stack.Screen name="map" component={Map} />
+            <Stack.Screen
+              name="chat"
+              component={ChatScreen}
+              options={{
+                headerTitle: "demo",
+                headerRight: () => (
+                  <TouchableOpacity onPress={handleClearMessage}>
+                    <View style={styles.buttonContainer}>
+                      <Text style={[styles.buttonText, { fontSize: Platform.OS === 'ios' ? 16 : 14 }]}>Clear chat</Text>
+                    </View>
+                  </TouchableOpacity>
+                )
+              }}
+            />
 
-      </Stack.Navigator>
-    </NavigationContainer>
+          </Stack.Navigator>
+        </NavigationContainer>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 }
 
