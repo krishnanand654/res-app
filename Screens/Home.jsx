@@ -1,32 +1,36 @@
 import React from 'react';
-import { View, StyleSheet, Pressable, ToastAndroid } from 'react-native';
-
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, BottomNavigation } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import { Platform } from 'react-native';
 import * as SQLite from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system';
 import { useIsFocused } from '@react-navigation/native';
 import { useState, useEffect } from 'react';
-import { RootSiblingParent } from 'react-native-root-siblings';
-import Toast from 'react-native-root-toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatListScreen from './ChatlistScreen';
-import WebSocketScreen from './WebSocketScreen';
+import SettingsScreen from './SettingsScreen';
+
+import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 const db = SQLite.openDatabase('userdb.db');
 
-
+const height = Platform.OS === 'ios' ? 100 : 67;
 
 export default function Home() {
-
 
     const navigation = useNavigation();
     const isFocused = useIsFocused(); // returns true if the screen is focused
 
     const [username, setUsername] = useState('');
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerTitle: 'ResNet', // Set the header title here
+        });
+        StatusBar.setBarStyle('dark-content');
+    }, []);
 
     useEffect(() => {
         if (isFocused) {
@@ -48,8 +52,6 @@ export default function Home() {
                                 console.error('Error setting setup complete flag:', error);
                             });
 
-
-
                             AsyncStorage.setItem('phone', rows.item(0).phoneNumber).then(() => {
                                 console.log('phoneSet');
                             }).catch((error) => {
@@ -65,137 +67,57 @@ export default function Home() {
                 );
             });
         }
-    }, [isFocused]);
+    }, [isFocused,]);
 
 
     return (
         <Tab.Navigator
-            screenOptions={{
-                headerShown: false,
-            }}
-            tabBar={({ navigation, state, descriptors, insets }) => (
-                <BottomNavigation.Bar
-                    navigationState={state}
-                    safeAreaInsets={insets}
-                    onTabPress={({ route, preventDefault }) => {
-                        const event = navigation.emit({
-                            type: 'tabPress',
-                            target: route.key,
-                            canPreventDefault: true,
-                        });
 
-                        if (event.defaultPrevented) {
-                            preventDefault();
-                        } else {
-                            navigation.dispatch({
-                                ...CommonActions.navigate(route.name, route.params),
-                                target: state.key,
-                            });
-                        }
-                    }}
-                    renderIcon={({ route, focused, color }) => {
-                        const { options } = descriptors[route.key];
-                        if (options.tabBarIcon) {
-                            return options.tabBarIcon({ focused, color, size: 24 });
-                        }
+            screenOptions={({ route }) => ({
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
 
-                        return null;
-                    }}
-                    getLabelText={({ route }) => {
-                        const { options } = descriptors[route.key];
-                        const label =
-                            options.tabBarLabel !== undefined
-                                ? options.tabBarLabel
-                                : options.title !== undefined
-                                    ? options.title
-                                    : route.title;
+                    if (route.name === 'ResNet') {
+                        iconName = focused
+                            ? 'chatbubble-ellipses'
+                            : 'chatbubble-ellipses-outline';
+                    } else if (route.name === 'Settings') {
+                        iconName = focused ? 'cog' : 'cog-outline';
+                    }
 
-                        return label;
-                    }}
-                />
-            )}
+                    // You can return any component that you like here!
+                    return <Ionicons name={iconName} color="black" size={24} height={40} />;
+                },
+
+                tabBarActiveTintColor: 'black',
+                tabBarInactiveTintColor: 'gray',
+                tabBarLabelStyle: {
+                    fontSize: 14,
+                    paddingBottom: 10,
+                },
+                tabBarStyle: { backgroundColor: 'white', paddingTop: 20, height: height },
+            })}
         >
-
             <Tab.Screen
-                name="Home"
+                name="ResNet"
                 component={ChatListScreen}
-                // component={WebSocketScreen}
                 initialParams={{ phone: username }}
                 options={{
-                    tabBarLabel: 'Home',
-                    tabBarIcon: ({ color, size }) => {
-                        return <Icon name="home" size={size} color={color} />;
-                    },
+                    tabBarLabel: 'Chat',
+
                 }}
             />
-
             <Tab.Screen
                 name="Settings"
                 component={SettingsScreen}
                 options={{
                     tabBarLabel: 'Settings',
-                    tabBarIcon: ({ color, size }) => {
-                        return <Icon name="cog" size={size} color={color} />;
-                    },
                 }}
             />
         </Tab.Navigator>
+
     );
 }
 
-// function HomeScreen() {
-//     const navigation = useNavigation();
-//     console.log(phoneNumber);
-//     return (
-//         <ChatListScreen customProps={phoneNumber} />
-//     );
-// }
 
-function SettingsScreen() {
-    const navigation = useNavigation();
-    const deleteDatabase = async () => {
-        try {
-            // Close the database connection
-            // db._db.close();
 
-            // Get the path of the SQLite database file
-            const dbPath = `${FileSystem.documentDirectory}SQLite/userdb.db`;
-
-            // Check if the database file exists
-            const fileInfo = await FileSystem.getInfoAsync(dbPath);
-            if (fileInfo.exists) {
-                // Delete the database file
-                await FileSystem.deleteAsync(dbPath);
-                console.log('SQLite database deleted successfully.');
-                let toast = Toast.show('Deleted successfully', {
-                    duration: Toast.durations.LONG,
-                });
-
-                setTimeout(function hideToast() {
-                    navigation.replace('setup')
-                }, 200)
-
-            } else {
-                console.log('SQLite database does not exist.');
-            }
-        } catch (error) {
-            console.error('Error deleting SQLite database:', error);
-        }
-    };
-
-    return (
-        <RootSiblingParent>
-            <View style={styles.container}>
-                <Pressable onPress={deleteDatabase}><Text>Delete account</Text></Pressable>
-
-            </View>
-        </RootSiblingParent>
-    );
-}
-
-const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        height: '100%'
-    },
-});

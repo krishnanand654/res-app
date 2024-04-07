@@ -38,6 +38,21 @@ const UserSetupScreen = () => {
                                 .catch((error) => {
                                     console.error('Error setting setup complete flag:', error);
                                 });
+
+                            AsyncStorage.setItem('username', username).then(() => {
+                                // Toast.show(rows.item(0).username, {
+                                //     duration: Toast.durations.LONG,
+                                // });
+                                console.log('userset');
+                            }).catch((error) => {
+                                console.error('Error setting setup complete flag:', error);
+                            });
+
+                            AsyncStorage.setItem('phone', phoneNumber).then(() => {
+                                console.log('phoneSet');
+                            }).catch((error) => {
+                                console.error('Error setting setup complete flag:', error);
+                            });
                             Alert.alert('User saved successfully!');
                             setUsername('');
                             setPhoneNumber('');
