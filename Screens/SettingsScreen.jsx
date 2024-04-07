@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { RootSiblingParent } from 'react-native-root-siblings';
-import { View, Pressable, Text, TextInput, StyleSheet, Image } from 'react-native'; // Import Image from react-native
+import { View, Pressable, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native'; // Import Image from react-native
 import * as SQLite from 'expo-sqlite';
 import { useIsFocused } from '@react-navigation/native';
 import { useEffect } from 'react';
@@ -11,6 +11,8 @@ import Toast from 'react-native-root-toast';
 import { StatusBar } from 'react-native';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SetAngle from './SetAngle';
+import EditDetailsScreen from './EditUserInfo';
 
 const fontWeight = Platform.OS === 'ios' ? '400' : '400';
 const db = SQLite.openDatabase('userdb.db');
@@ -66,25 +68,7 @@ const SettingsScreen = () => {
         }
     }, [isFocused]);
 
-    const handleSaveChanges = () => {
-        // Update the database with the edited values
-        db.transaction((tx) => {
-            tx.executeSql(
-                'UPDATE users SET username = ?, address = ? WHERE id = 1;',
-                [editedUsername, editedAddress],
-                () => {
-                    console.log('Data updated successfully.');
-                    setUsername(editedUsername);
-                    setAddress(editedAddress);
-                    setEditMode(false);
-                },
-                (_, error) => {
-                    console.error('Error updating data:', error);
-                    // Optionally, you can show an error message here
-                }
-            );
-        });
-    };
+
 
     const deleteDatabase = async () => {
         try {
@@ -118,57 +102,95 @@ const SettingsScreen = () => {
     };
 
 
-    const toggleEditMode = () => {
-        setEditMode(!editMode);
+
+
+    const handleClearMessage = async () => {
+
+
+
+        const url = `http://10.10.10.1/clear`;
+
+        try {
+            await fetch(url, {
+                method: 'POST'
+            });
+            console.log("cleared")
+
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
     };
+
+
+
 
     return (
         <RootSiblingParent>
             <View style={styles.container}>
 
-                <View style={styles.imageCtn}>
+
+                {/* <View style={styles.imageCtn}>
                     <Image
                         style={styles.image} // Add style to Image component
                         source={require('../assets/user.png')} // Ensure the path is correct
                         accessibilityLabel="reload"
                     />
                 </View>
-                <View style={styles.card}>
-                    {editMode ? (
-                        <TextInput
-                            style={styles.input}
-                            value={editedUsername}
-                            onChangeText={setEditedUsername}
-                        />
-                    ) : (
-                        <Text style={styles.name}>{username}</Text>
-                    )}
-                    <Text>{phoneNumber}</Text>
+                 */}
+                <TouchableOpacity style={styles.userCard} onPress={() => navigation.navigate('edituser')}>
+                    <View style={styles.userCardFlex}>
+                        <View style={styles.avatarCtn}>
+                            <Text style={styles.avatar}>{username.charAt(0).toUpperCase()}</Text>
+                        </View>
+                        <View>
+                            <Text style={styles.userName}>{username}</Text>
+                            <Text>Edit Profile</Text>
+                        </View>
+                    </View>
 
-                    {editMode ? (
-                        <TextInput
-                            style={styles.input}
-                            value={editedAddress}
-                            onChangeText={setEditedAddress}
-                        />
-                    ) : (
-                        <Text>{address}</Text>
-                    )}
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.userOptions} onPress={() => navigation.navigate('angle')}>
+                    <View style={styles.adjBtn}>
+                        <Text style={styles.text}>Adjust Panel</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <Text style={styles.caption}>Adjust the solar panel position manually with the help of slider. This action is restricted to <Text style={styles.span}>ResNet admins</Text></Text>
+
+                <View style={styles.userOptions}>
+                    <TouchableOpacity style={styles.userOptions} onPress={handleClearMessage}>
+                        <View style={styles.adjBtn}>
+                            <Text style={styles.text}>Unload Server</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
+                <Text style={styles.caption}>Clear all messages and associated data to enhance server performance and efficiency. This action is restricted to <Text style={styles.span}>ResNet admins</Text>
+                </Text>
+                <View style={styles.userOptions}>
+                    <Button onPress={deleteDatabase}>
+                        <Text style={styles.delText}>Delete Account</Text>
+                    </Button>
+                </View>
+                <Text style={styles.caption}>Caution: Deleting the account will result in the loss of access to critical communication during emergencies. The application is authorized to ensure network availability in such situations. Re-establishing your account after deletion is essential to maintain communication capabilities.
+                </Text>
 
-                {editMode ? (
-                    <Button style={styles.editButton} onPress={handleSaveChanges}>
-                        <Text style={styles.text}>Save Changes</Text>
-                    </Button>
-                ) : (
-                    <Button style={styles.editButton} onPress={toggleEditMode}>
-                        <Text style={styles.text}>Edit</Text>
-                    </Button>
-                )}
+                {/* {phoneNumber === "9495434706" ?
+                    <>
+                        <Button onPress={() => { navigation.navigate('angle') }}>
+                            <Text style={styles.text}>Adjust Panel</Text>
+                        </Button>
+                        <Button onPress={handleClearMessage}>
+                            <Text style={styles.text}>Unload Server</Text>
+                        </Button>
+                    </>
+                    : null}
 
                 <Button onPress={deleteDatabase}>
                     <Text style={styles.delText}>Delete Account</Text>
                 </Button>
+ */}
+
             </View>
 
         </RootSiblingParent>
@@ -183,6 +205,51 @@ const styles = StyleSheet.create({
         padding: 20,
         alignItems: 'center',
     },
+    userCard: {
+        backgroundColor: 'white',
+        width: '100%',
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 20,
+    },
+    userCardFlex: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    span: {
+        color: '#007AFF'
+    },
+    adjBtn: {
+        padding: 10
+    },
+    userOptions: {
+        backgroundColor: 'white',
+        width: '100%',
+        borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    caption: {
+        color: '#6D6D6D',
+        marginTop: 10,
+        marginBottom: 24
+    },
+    userName: { fontSize: 22, marginBottom: 5 },
+    avatarCtn: {
+        backgroundColor: '#A1A1A1',
+        borderRadius: 100,
+        width: 60,
+        height: 60,
+        marginRight: 20,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    avatar: {
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 24
+    },
+
     image: {
         width: 100, // Set width
         height: 100, // Set height

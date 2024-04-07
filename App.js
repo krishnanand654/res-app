@@ -16,6 +16,8 @@ import { TouchableOpacity, View, Text } from 'react-native';
 import SettingsScreen from './Screens/SettingsScreen';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import setAngle from './Screens/SetAngle';
+import EditDetailsScreen from './Screens/EditUserInfo';
 
 
 const Stack = createNativeStackNavigator();
@@ -49,18 +51,20 @@ export default function App() {
             <Stack.Screen name="home" component={Home} options={{ headerShown: false, headerTintColor: 'blue' }} />
             <Stack.Screen name="setting" component={SettingsScreen} />
             <Stack.Screen name="map" component={Map} />
+            <Stack.Screen name="angle" component={setAngle} />
+            <Stack.Screen name="edituser" component={EditDetailsScreen} />
             <Stack.Screen
               name="chat"
               component={ChatScreen}
               options={{
-                headerTitle: "demo",
-                headerRight: () => (
-                  <TouchableOpacity onPress={handleClearMessage}>
-                    <View style={styles.buttonContainer}>
-                      <Text style={[styles.buttonText, { fontSize: Platform.OS === 'ios' ? 16 : 14 }]}>Clear chat</Text>
-                    </View>
-                  </TouchableOpacity>
-                )
+                headerTitle: "chat",
+                // headerRight: () => (
+                //   <TouchableOpacity onPress={handleClearMessage}>
+                //     <View style={styles.buttonContainer}>
+                //       <Text style={[styles.buttonText, { fontSize: Platform.OS === 'ios' ? 16 : 14 }]}>Clear chat</Text>
+                //     </View>
+                //   </TouchableOpacity>
+                // )
               }}
             />
 

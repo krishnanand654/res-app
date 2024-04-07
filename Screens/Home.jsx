@@ -11,6 +11,8 @@ import ChatListScreen from './ChatlistScreen';
 import SettingsScreen from './SettingsScreen';
 
 import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'react-native';
+
 const Tab = createBottomTabNavigator();
 const db = SQLite.openDatabase('userdb.db');
 
@@ -27,6 +29,7 @@ export default function Home() {
         navigation.setOptions({
             headerTitle: 'ResNet', // Set the header title here
         });
+        StatusBar.setBarStyle('dark-content');
     }, []);
 
     useEffect(() => {

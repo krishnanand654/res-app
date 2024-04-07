@@ -35,7 +35,7 @@ const ChatListScreen = () => {
 
 
 
-    const snapPoints = useMemo(() => ['25%', '70%', '90%'], []);
+    const snapPoints = useMemo(() => ['25%'], []);
 
     const bottomSheetRef = useRef(null); // Use useRef() here
 
