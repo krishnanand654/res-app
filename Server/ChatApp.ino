@@ -57,6 +57,7 @@ void setup() {
   webServer.on("/", HTTP_GET, []() {
     webServer.send(200, "text/html", "Welcome to the ESP8266 WebSocket Server");
   });
+  webServer.on("/setAngle", HTTP_GET, handleSetAngle);
   webServer.on("/send", HTTP_POST, handleSendMessage);
   webServer.on("/messages", HTTP_GET, showMessages);
   webServer.on("/clear", HTTP_POST, handleClearMessages);
@@ -84,27 +85,7 @@ void loop() {
   webServer.handleClient();
 
   // Check for file changes every 5 seconds
-  static unsigned long prevCheckTime = 0;
-  if (millis() - prevCheckTime > 5000) {
-    prevCheckTime = millis();
-    checkFileChanges();
-  }
-
-  // Sample LDR sensor value every 100 milliseconds
-  static unsigned long lastSampleTime = 0;
-  if (millis() - lastSampleTime >= 100) {
-    lastSampleTime = millis();
-    lightValue = analogRead(LDR_PIN);
-    Serial.print("Light Value: ");
-    Serial.println(lightValue);
-
-    if (SERVO_PIN != -1 && LDR_PIN != -1) {
-      if (lightValue > 500) {
-        rotateOpposite();
-      }
-    }
-  }
-
+ 
    unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     // Save the last time the LED blinked
@@ -118,21 +99,32 @@ void loop() {
   }
 }
 
-void rotateOpposite() {
-  int currentPos = servo.read();
-  if(currentPos == 180){
-    for (int angle = 180; angle >= 0; angle--) {
-    servo.write(angle); // Set the servo position
-    delay(15); // Delay for smoother motion, adjust as needed
-  }
-   
-  }else{
-     for (int angle = 0; angle <= 180; angle++) {
-    servo.write(angle); // Set the servo position
-    delay(15); // Delay for smoother motion, adjust as needed
-  }
+void handleSetAngle() {
+  if (webServer.hasArg("angle")) {
+    int targetAngle = webServer.arg("angle").toInt();
+    int currentAngle = servo.read();
+    if (targetAngle >= 0 && targetAngle <= 180) {
+      if (targetAngle > currentAngle) {
+        for (int angle = currentAngle; angle <= targetAngle; angle++) {
+          servo.write(angle);
+          delay(15); // Delay for smoother motion, adjust as needed
+        }
+      } else {
+        for (int angle = currentAngle; angle >= targetAngle; angle--) {
+          servo.write(angle);
+          delay(15); // Delay for smoother motion, adjust as needed
+        }
+      }
+      webServer.send(200, "text/plain", "Servo angle set to: " + String(targetAngle));
+    } else {
+      webServer.send(400, "text/plain", "Invalid angle value. Angle must be between 0 and 180 degrees.");
+    }
+  } else {
+    webServer.send(400, "text/plain", "Missing angle parameter.");
   }
 }
+
+
 
 void checkFileChanges() {
   File file = SPIFFS.open(messagesFile, "r");
