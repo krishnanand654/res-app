@@ -18,14 +18,39 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import setAngle from './Screens/SetAngle';
 import EditDetailsScreen from './Screens/EditUserInfo';
+import { FileSystem } from 'expo';
 
 
 const Stack = createNativeStackNavigator();
 export default function App() {
 
+
+  async function prefetchAssets() {
+    // Define the directory where your assets are located
+    const assetsDirectory = FileSystem.documentDirectory + 'assets/';
+
+    try {
+      // Get a list of all files in the assets directory
+      const files = await FileSystem.readDirectoryAsync(assetsDirectory);
+
+      // Iterate over each file
+      for (const file of files) {
+        // Prefetch the asset using Image.prefetch
+        const assetUri = assetsDirectory + file;
+        await Image.prefetch(assetUri);
+        console.log(`Prefetched asset: ${assetUri}`);
+      }
+
+      console.log('All assets preloaded successfully!');
+    } catch (error) {
+      console.error('Error prefetching assets:', error);
+    }
+  }
+
+  // Call the prefetchAssets function when your app initializes
+  useEffect(() => { prefetchAssets })
+
   const handleClearMessage = async () => {
-
-
 
     const url = `http://10.10.10.1/clear`;
 
@@ -53,6 +78,7 @@ export default function App() {
             <Stack.Screen name="map" component={Map} />
             <Stack.Screen name="angle" component={setAngle} />
             <Stack.Screen name="edituser" component={EditDetailsScreen} />
+
             <Stack.Screen
               name="chat"
               component={ChatScreen}

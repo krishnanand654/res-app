@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SetAngle from './SetAngle';
 import EditDetailsScreen from './EditUserInfo';
 
+
 const fontWeight = Platform.OS === 'ios' ? '400' : '400';
 const db = SQLite.openDatabase('userdb.db');
 
@@ -150,23 +151,25 @@ const SettingsScreen = () => {
 
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.userOptions} onPress={() => navigation.navigate('angle')}>
-                    <View style={styles.adjBtn}>
-                        <Text style={styles.text}>Adjust Panel</Text>
-                    </View>
-                </TouchableOpacity>
-
-                <Text style={styles.caption}>Adjust the solar panel position manually with the help of slider. This action is restricted to <Text style={styles.span}>ResNet admins</Text></Text>
-
-                <View style={styles.userOptions}>
-                    <TouchableOpacity style={styles.userOptions} onPress={handleClearMessage}>
+                {phoneNumber === "*66*56*78*" ? <>
+                    <TouchableOpacity style={styles.userOptions} onPress={() => navigation.navigate('angle')}>
                         <View style={styles.adjBtn}>
-                            <Text style={styles.text}>Unload Server</Text>
+                            <Text style={styles.text}>Adjust Panel</Text>
                         </View>
                     </TouchableOpacity>
-                </View>
-                <Text style={styles.caption}>Clear all messages and associated data to enhance server performance and efficiency. This action is restricted to <Text style={styles.span}>ResNet admins</Text>
-                </Text>
+
+                    <Text style={styles.caption}>Adjust the solar panel position manually with the help of slider. This action is restricted to <Text style={styles.span}>ResNet admins</Text></Text>
+
+                    <View style={styles.userOptions}>
+                        <TouchableOpacity style={styles.userOptions} onPress={handleClearMessage}>
+                            <View style={styles.adjBtn}>
+                                <Text style={styles.text}>Unload Server</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={styles.caption}>Clear all messages and associated data to enhance server performance and efficiency. This action is restricted to <Text style={styles.span}>ResNet admins</Text>
+                    </Text>
+                </> : null}
                 <View style={styles.userOptions}>
                     <Button onPress={deleteDatabase}>
                         <Text style={styles.delText}>Delete Account</Text>
@@ -174,7 +177,6 @@ const SettingsScreen = () => {
                 </View>
                 <Text style={styles.caption}>Caution: Deleting the account will result in the loss of access to critical communication during emergencies. The application is authorized to ensure network availability in such situations. Re-establishing your account after deletion is essential to maintain communication capabilities.
                 </Text>
-
                 {/* {phoneNumber === "9495434706" ?
                     <>
                         <Button onPress={() => { navigation.navigate('angle') }}>

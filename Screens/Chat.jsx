@@ -9,9 +9,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-root-toast';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { Image } from 'expo-image';
+import { StatusBar } from 'react-native';
 
 const ChatScreen = ({ route }) => {
     const { username, phoneNumber } = route.params;
+    // username = "hi";
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
@@ -25,6 +27,23 @@ const ChatScreen = ({ route }) => {
     const [imageError, setImageError] = useState(false);
 
     const navigation = useNavigation();
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerTitle: username,
+            headerStyle: {
+                backgroundColor: '#FFFFFF', // Change this to the desired color
+            },
+            headerTintColor: '#000000', // Change text color
+            headerTitleStyle: {
+                fontWeight: 'bold',
+            },
+        });
+
+        // Set status bar style
+        StatusBar.setBarStyle('dark-content'); // Set status bar content to dark color
+    }, []);
+
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
@@ -157,7 +176,7 @@ const ChatScreen = ({ route }) => {
         ws.onopen = function (event) {
             // setIsConnecting(false); // Set connection status to false when WebSocket connection is established
             Toast.show('WebSocket connection established', {
-                duration: Toast.durations.LONG,
+                duration: Toast.durations.SHORT,
             });
             console.log('WebSocket connection established');
         };
@@ -170,9 +189,9 @@ const ChatScreen = ({ route }) => {
             // Convert data object to a string for displaying in the toast
             const dataString = JSON.stringify(data);
 
-            Toast.show(dataString, {
-                duration: Toast.durations.LONG,
-            });
+            // Toast.show(dataString, {
+            //     duration: Toast.durations.LONG,
+            // });
 
             const decodedMessages = data.messages.map(msg => ({
                 ...msg,
@@ -238,7 +257,16 @@ const ChatScreen = ({ route }) => {
                                     const [latitude, longitude] = item.message.split(',');
                                     handlePressLocation(parseFloat(latitude), parseFloat(longitude));
                                 }}>
-                                    <Text style={[styles.messageText, item.phoneNumber === senderNumber ? styles.senderMessageText : styles.receiverMessageText]}>{item.message} <Feather name="external-link" size={20} style={styles.linkIcon} /></Text>
+                                    <View style={styles.mapMsg}>
+                                        <Text style={[styles.messageText, item.phoneNumber === senderNumber ? styles.senderMessageText : styles.receiverMessageText]}>{item.message} </Text>
+                                        <Image source={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAtElEQVR4nO2VQQrCMBBF3yUMHkE8Sc9tFy50ZRfuU5DeYqRQoSgTZ0KsWPNhlvNf+/NJoOpH1QKizPFbYGEhbYDL0uAAdBOss4IboH8T2fMMwF6BBis4FoZiBeeex/xMr8DW6ykZYO1P520/lAZr0Ef8ZokDrMW7A26fAodEvENOT8SwlCqS5+PdS6dEkaweWUvjhX9WoFaPF5W4VyvYpBr1+ssVne+xNqOPS00BeJx8qv5Yd5herU1jqGmdAAAAAElFTkSuQmCC' }} style={{
+                                            width: 20,
+                                            height: 20,
+                                            verticalAlign: 'middle', // Aligns the image vertically with the text
+                                            marginTop: '10px',
+                                            marginLeft: '10px'
+                                        }} />
+                                    </View>
 
                                 </Pressable>
                             ) : (
@@ -255,9 +283,10 @@ const ChatScreen = ({ route }) => {
                         {/* <MaterialIcons name="refresh" size={28} color="#006ee6" /> */}
                         <Image
                             style={styles.reloadIcon}
-                            source={require('../assets/reload.png')}
+                            source={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVR4nO1WW0tbQRD+fO6rphWiYGn7b4oKsVILpY9pPTOJ8Sf4K0TUvpRe0NBC63/R6kuTmRMV9cUXr5HdPYmJuZ2crNIHPxg4nJ3db2d2bsAj/juwjIMkD5I/INkDyakT3QHLFlgCFMpjvgk/g+UcrNXuYnVWBr8AaQakJ/VDSb8gkLfIV55jMXxiZeHfC/uP9Gv9cmYPlV8nI80fjILkyh0kG9byXgjCCadrL3oN1mwC5uoQWJaQ0/d9bzWxYInlEjmZSkA+AEgLkduPQDry0OS/IvK17oq5cMaKL5i4cEF51tlqs8ByYMWna2rBRpLvpPCjno/m2xdMqrGN8s02pOGblmLgy+Xz5VfRO/9tXijIMFj2W4hJD8GVp4kJGz3ILRXuew8F/ZmY2BhEUmlrUDZMNSuz7DqF0kv4AMlkvCckLbrF8qwX4thBS7Vq4zGqY6VpNkzdJnwp7Y08F6cwsaxHQVDEgyJrrNbj7tXmvsAybVuaaW2BcN/7g/CDbammtfYN0o9RM3eDgGnyvQknbO67PVf4tP+sf2IDM77U3O6Czow3c7YMNo4+JO9A+g0kFw09OIOBQKU0WJdjDXsmG1hXvWYEzGEUztvxlnX7znj7GyTkl/AR8IMbVJ2yLEgVnrYAAAAASUVORK5CYII=' }}
                             accessibilityLabel="reload"
                         />
+
                     </Pressable>
 
                     <TextInput
@@ -273,9 +302,10 @@ const ChatScreen = ({ route }) => {
 
                         <Image
                             style={styles.LocIcon}
-                            source={require('../assets/location.png')}
+                            source={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC6UlEQVR4nO2ZyWsUQRSHf26oGEVEiaIgiIKgoCeXP8Cb6MntlJvgMFWdSRQPHoISgjdJPLj9BR704E28KK4R0UtA8RKc9Hs9k0RQTCTRaEvVDBqzjFVjVU2P+MGDZrqp6Y+q96qqC/jPHJwZWYk8nYDg6xD0HJKGIelLNdR1v74n4+P62czRPrwBgq5A8jgkp4ahnr2BQnFro18fEG+XQtAFCBqzEJgRqrf4om6rIXTQWgh6UL/AjBD8BLny+rASMtkJwUVnEr9k3um2w0iUWr1I/CZTavUr0Ta4TA8BXxLyZzz2mzMqsf1LpNXo8Vli/6I6WQ+xSbSXtrgXqcwTaeC45lYiV26BpE/BRQSN6f92hlp22L3EBCT3Ikr2ojNZoUNdS+6r3rOQSY66E9HrI+OxHSM/tGvetqJ4t37GWIauOhRRC0DDnqglMV3GtGcEPXMowiOGIr0WbV427JGyS5FJoz/NJ3vM2yztM+5lZ5gOA5sKoyuhUc59diciqORcRIyuMswRdici+XXDhpagAZcidwzHc5+HZL/lUqTHODFVaf0TlbnErIBIOu9ORM2uNhNiLRnbCTGKDzkU4XUQ9M1CZlIPHZUHqgCoiOL9ld9Me4JVfnzVRcEpgl8Zv4CrEPzQrUT4TVVaFTntXiRP28OK0HfkeDO8IPllQJH78IbgU8FEoviYP5HKTvGD/9wgxsl0Cbwi+VKAJD8H74ihTdbbVbvc+IhocDWCoLaf/kS6EYxCcaOXb1yC36NQXIOgqMWc+97IIziF4nKnH7MFv/FfqeZDcpu73kgOomF0pQsh+YUDkXtoOJH6RqWPz+qVGIcc2oZMII13kHPlRgcyg9CHogN1VKl+HEkXIVMI9VWEpixEJtCe7EAmkdRtIdKJzNKVLobkRwYSd3XFyzRCLypHa+RFWR/jNQWCDuut6myJKUg6gKZCctfsUktn0XykCyDp5rT54rb+rSnJlVv0iZOkp24PNfHv8gP38Rjypcg7bwAAAABJRU5ErkJggg==' }}
                             accessibilityLabel="loc"
                         />
+
                     </Pressable>
 
                     <Pressable style={styles.button} onPress={handleSendMessage}>
@@ -284,12 +314,10 @@ const ChatScreen = ({ route }) => {
                             <Text>Send</Text>
                         ) : (
                             <Image
-                                style={styles.sendIcon}
-                                source={require('../assets/send2.png')}
-                                placeholder="send"
-                                accessibilityLabel="send"
-                                onError={() => setImageError(true)}
+                                source={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAACg0lEQVR4nO2YzWpTURDH/7pR8GsliDutoFZ9AzeiIvgEgqArKyaZSUVc67KIoFJ9CReCivgcVbuwokXJzE20RhF0Y9sr5yStrbnJ/c49V+4PDiQ3IZlfZs7cOQEqKir+D6a6e0ByEbS0G6Wk2ToMkkcgeY96+4S9VhqZW/5WNFpnQPIcLKtg+bwu0dSj4NYFOM3NL7vAOgWWebD6vbVBoiFHQPrOlpmTXP90CKwzYO3+FQiQYPFAOgu38Lf0y+cxWJY3C2iwhCkz89gJap2dtnxI3gwGryMk7PWXRYcPUGciuHyiSqhZ54sTYDk5vHwGJDpDJcwmN92soPJ5HR78Bgn2jgdKmNUQHp/AdPugLR/Sr9EFAiRIdNPrJD/G03JjlU9MCbbrQX7BX17cjqZeAsur+MHHkZBVO6ZkTv3jfpDcButScoHImfBB8iKf8iH5nU4ghgSrj6acSx88LWyz5UM6lz74BBKkC+labmblM0KiN54Pl2Aj4tVTZEFnk3WfkEXSBulk/zsm7fPR0t/tNJwYlg/FS6gpq/tIRa2zz34I6a/MJMxhKJaErNjRPhNI9/aHvJ+p9sS0dyzynuD19SwbiUyEEkv4YDmbvUgioTQS+tYeunInVOgfCVaJt6f0Wv4SYUJmI6eT+GaPAIWwJkSymEqi90PcRfH06zroUBRNYsWeZ5zAzEVJb6ikT+EUrPeS3XNap+EUZjKIf8+ZH0/LzTsrDb0KJ6nFyIppuTe8HXAWjpoVuQOnqUXJiiyj4R2A83BIVkifoBTUQrJC3imUBh6SFfNvvJMtN25WmnIFpYMHstJ1u+VGz8oMSguvZaUsLXdkVsxkLA+HvqeiogJ58QdymDceDKJ19AAAAABJRU5ErkJggg==' }}
+                                style={{ width: 30, height: 30 }} // Adjust dimensions as needed
                             />
+
                         )}
                     </Pressable>
                 </View>
@@ -302,6 +330,8 @@ const ChatScreen = ({ route }) => {
         </RootSiblingParent>
     );
 };
+
+
 
 const styles = StyleSheet.create({
     reloadIcon: {
@@ -316,6 +346,11 @@ const styles = StyleSheet.create({
         marginTop: 3,
         width: 24,
         height: 24,
+    },
+    mapMsg: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
     },
     sendIcon: {
         marginTop: 0,

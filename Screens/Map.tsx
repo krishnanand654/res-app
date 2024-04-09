@@ -28,6 +28,9 @@ export const Map: FC = ({ route }) => {
 
   const { latitude, longitude } = route.params;
 
+  // const latitude = 9.510168311337052,
+  // const longitude = 76.55126283586765 // Fake longitude data
+
   const urlTemplate = useMemo(
     () =>
       isOffline

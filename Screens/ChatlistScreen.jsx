@@ -230,7 +230,7 @@ const ChatListScreen = () => {
 
                     icon={() => (
                         <Image
-                            source={require('../assets/reload.png')}
+                            source={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVR4nO1WW0tbQRD+fO6rphWiYGn7b4oKsVILpY9pPTOJ8Sf4K0TUvpRe0NBC63/R6kuTmRMV9cUXr5HdPYmJuZ2crNIHPxg4nJ3db2d2bsAj/juwjIMkD5I/INkDyakT3QHLFlgCFMpjvgk/g+UcrNXuYnVWBr8AaQakJ/VDSb8gkLfIV55jMXxiZeHfC/uP9Gv9cmYPlV8nI80fjILkyh0kG9byXgjCCadrL3oN1mwC5uoQWJaQ0/d9bzWxYInlEjmZSkA+AEgLkduPQDry0OS/IvK17oq5cMaKL5i4cEF51tlqs8ByYMWna2rBRpLvpPCjno/m2xdMqrGN8s02pOGblmLgy+Xz5VfRO/9tXijIMFj2W4hJD8GVp4kJGz3ILRXuew8F/ZmY2BhEUmlrUDZMNSuz7DqF0kv4AMlkvCckLbrF8qwX4thBS7Vq4zGqY6VpNkzdJnwp7Y08F6cwsaxHQVDEgyJrrNbj7tXmvsAybVuaaW2BcN/7g/CDbammtfYN0o9RM3eDgGnyvQknbO67PVf4tP+sf2IDM77U3O6Czow3c7YMNo4+JO9A+g0kFw09OIOBQKU0WJdjDXsmG1hXvWYEzGEUztvxlnX7znj7GyTkl/AR8IMbVJ2yLEgVnrYAAAAASUVORK5CYII=' }}
                             style={[
 
                                 {
