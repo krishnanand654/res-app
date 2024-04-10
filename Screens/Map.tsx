@@ -28,8 +28,8 @@ export const Map: FC = ({ route }) => {
 
   const { latitude, longitude } = route.params;
 
-  // const latitude = 9.510168311337052,
-  // const longitude = 76.55126283586765 // Fake longitude data
+  // const latitude = 9.510168311337052;
+  // const longitude = 76.55126283586765; // Fake longitude data
 
   const urlTemplate = useMemo(
     () =>
@@ -83,11 +83,11 @@ export const Map: FC = ({ route }) => {
         />
       </MapView>
 
-      {/* <View style={styles.actionContainer}>
+      <View style={styles.actionContainer}>
         <Button raised title={"Download"} onPress={toggeleDownloadSettings} />
         <Button raised title={"Clear tiles"} onPress={clearTiles} />
         <Button raised title={toggleOfflineText} onPress={toggleOffline} />
-      </View> */}
+      </View>
 
       {visisbleSettings && (
         <DownloadSettings mapRegion={mapRegion} onFinish={onDownloadComplete} />

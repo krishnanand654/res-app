@@ -23,6 +23,7 @@ const margin = Platform.OS === 'ios' ? 20 : 10;
 const ChatListScreen = () => {
 
     const [isSwitchOn, setIsSwitchOn] = useState(false);
+    const [adminStatus, setAdminStatus] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const onToggleSwitch = () => {
@@ -32,6 +33,24 @@ const ChatListScreen = () => {
 
     };
 
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const isAdminResult = await isAdmin();
+            setAdminStatus(isAdminResult);
+        };
+
+        checkAdmin();
+    }, []);
+
+    const isAdmin = async () => {
+        try {
+            const value = await AsyncStorage.getItem('admin');
+            return value === 'true'; // Check if the value is 'true' (case-sensitive)
+        } catch (error) {
+            console.error('Error retrieving admin flag:', error);
+            return false; // Assume not admin if there's an error
+        }
+    };
 
 
 
@@ -194,10 +213,10 @@ const ChatListScreen = () => {
                         data={distinctMessages}
                         renderItem={({ item }) => (item.phoneNumber != phone ? (
                             <>
-                                <TouchableHighlight onPress={() => handleItemPress(item)}>
+                                <TouchableHighlight underlayColor="#dfdfdf" onPress={() => handleItemPress(item)}>
                                     <View style={styles.itemContainer}>
                                         <Text style={styles.username}>{item.username}</Text>
-                                        <Text style={styles.phoneNumber}>{item.phoneNumber}</Text>
+                                        {item.phoneNumber == "e8:db:84:e3:0f:8d" ? <Text>Resnet India</Text> : <Text style={styles.phoneNumber}>{item.phoneNumber}</Text>}
                                         <Text style={styles.status}>{item.message}</Text>
                                     </View>
                                 </TouchableHighlight></>) : null

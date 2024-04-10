@@ -10,10 +10,15 @@ import Toast from 'react-native-root-toast';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { Image } from 'expo-image';
 import { StatusBar } from 'react-native';
+import Dialog from "react-native-dialog";
+import { TouchableOpacity } from 'react-native';
+
+
 
 const ChatScreen = ({ route }) => {
     const { username, phoneNumber } = route.params;
-    // username = "hi";
+    // username = "hi"
+    // phoneNumber = "hi";
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
@@ -25,6 +30,29 @@ const ChatScreen = ({ route }) => {
     const [loadingLocation, setLoadingLocation] = useState(false);
     const [receiver, setReceiver] = useState('');
     const [imageError, setImageError] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const [adminStatus, setAdminStatus] = useState(false);
+
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const isAdminResult = await isAdmin();
+            setAdminStatus(isAdminResult);
+        };
+
+        checkAdmin();
+    }, []);
+
+    const isAdmin = async () => {
+        try {
+            const value = await AsyncStorage.getItem('admin');
+            return value === 'true'; // Check if the value is 'true' (case-sensitive)
+        } catch (error) {
+            console.error('Error retrieving admin flag:', error);
+            return false; // Assume not admin if there's an error
+        }
+    };
+
+
 
     const navigation = useNavigation();
 
@@ -38,7 +66,20 @@ const ChatScreen = ({ route }) => {
             headerTitleStyle: {
                 fontWeight: 'bold',
             },
+            headerRight: () => (
+                <TouchableOpacity onPress={showDialog}>
+                    <View style={styles.buttonContainer}>
+                        <Text style={styles.infoIconCtn}><Image
+                            style={styles.infoIcon}
+                            source={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAACHUlEQVR4nLVVzU4UQRCumweJNw7CQgiCeDJ64yHEeCW8we5UDQvIe3gk6sUTPxK8KLwJoPHgzlTPrvGieAEhmqpqmk12t2c2rJVU0rNb1V/X119VA8SMeBqQEdAdAboTQP5tLmt3BMQJrOVTMLQ1W5NAbguIL4Hc36gjXwHyLqTFTLXNU34BxGeW7M4B3TYkvAxpvgDrxV11WctvxDsaY0C/IM2fxzcnTvVElvAeVtuzpQfCzgMg3g/VJEyDT66bKy3r1crtMnQbnq6r3kowqwVaYpuv5VN68YMsKV4GuhrfJm7+IPc20DLIKHts1fElYP50YBy6A3/Q1z6Rpy3JnUc5p4oAzdacXbzEZTVQnZtitqHMVr/fVy8zka3uWTSkgkP9ENnFLM2fAPJXdVnHAVY85R+Fsy/GWTYfT2ov3jRXe7HkMAuelRMI6ql3xkYGUO+MWSyf/R8A/HHPA/wUiZ7qRyN/ODKAhB/52OPql4zDVNB9yTJyrZydkQEQ7/nY+nX7W6PJ4LotQLM1B8QXgPzHGk2T3Rtfxf6tAch98HFb3aiTOqBMuxv9AT7f0VEiLuu+m/NmUE9Px8uIvR63MhWHNeLNkI/5Uv8geSzCg+MOlM8yU849LQaA8QSrxOgivaxdlZ1oW5pRXNYqRVELXwRaqHhWrVx040DulSqhyqNP/K7SlO0Fymo6cok/aVfqWNHRcqxNJDoPUuxv/wCPIvydCzhNZAAAAABJRU5ErkJggg==' }}
+                            accessibilityLabel="reload"
+                        /></Text>
+                    </View>
+                </TouchableOpacity>
+            )
+
         });
+
 
         // Set status bar style
         StatusBar.setBarStyle('dark-content'); // Set status bar content to dark color
@@ -175,9 +216,9 @@ const ChatScreen = ({ route }) => {
 
         ws.onopen = function (event) {
             // setIsConnecting(false); // Set connection status to false when WebSocket connection is established
-            Toast.show('WebSocket connection established', {
-                duration: Toast.durations.SHORT,
-            });
+            // Toast.show('WebSocket connection established', {
+            //     duration: Toast.durations.SHORT,
+            // });
             console.log('WebSocket connection established');
         };
 
@@ -232,6 +273,15 @@ const ChatScreen = ({ route }) => {
         }
     };
 
+    const showDialog = () => {
+        setVisible(true);
+
+    };
+
+    const handleCancel = () => {
+        setVisible(false);
+    };
+
     const handlePressLocation = (latitude, longitude) => {
         // Navigate to MapScreen with latitude and longitude as p
 
@@ -243,6 +293,15 @@ const ChatScreen = ({ route }) => {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.container}
             >
+                <Dialog.Container visible={visible}>
+                    <Dialog.Title>{username}</Dialog.Title>
+                    <Dialog.Description>
+                        IMEI no. {phoneNumber == "e8:db:84:e3:0f:8d" ? "Resnet India" : phoneNumber}
+                    </Dialog.Description>
+                    <Dialog.Button label="Cancel" onPress={handleCancel} />
+                    <Dialog.Button label="ok" onPress={handleCancel} />
+                </Dialog.Container>
+
                 <FlatList
                     data={messages}
                     renderItem={({ item }) => (item.receiver === phoneNumber && item.phoneNumber === senderNumber || item.receiver === senderNumber && item.phoneNumber === phoneNumber ?
@@ -440,6 +499,15 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 20,
     },
+    infoIcon: {
+        height: 24,
+        width: 24
+
+    },
+    infoIconCtn: {
+        height: 24,
+        width: 30
+    }
 });
 
 export default ChatScreen;
