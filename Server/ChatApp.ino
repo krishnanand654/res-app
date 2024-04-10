@@ -18,7 +18,7 @@ int lightValue = 0;
 // Configuration
 const byte DNS_PORT = 53;
 const String messagesFile = "/messages.txt";
-const char* wifiName = "ChatWithMe";
+const char* wifiName = "ResNet";
 const int webSocketPort = 81;
 
 // Network
@@ -36,6 +36,8 @@ unsigned long prevFileModifiedTime = 0;
 unsigned long previousMillis = 0;
 const long interval = 1000; // Blink interval in milliseconds
 bool ledState = false; 
+
+const char* expectedMacAddress = "e8:db:84:e3:0f:8d";
 
 void setup() {
   Serial.begin(115200);
@@ -61,7 +63,7 @@ void setup() {
   webServer.on("/send", HTTP_POST, handleSendMessage);
   webServer.on("/messages", HTTP_GET, showMessages);
   webServer.on("/clear", HTTP_POST, handleClearMessages);
-
+  webServer.on("/authenticate", HTTP_POST, handleAuthentication);
   // WebSocket event handler
   webSocket.begin();
   webSocket.onEvent(handleWebSocketEvent);
@@ -157,6 +159,20 @@ void updateMessages() {
 
 void broadcastMessages() {
   webSocket.broadcastTXT(messages);
+}
+
+
+void handleAuthentication() {
+  if (webServer.hasArg("mac")) {
+    String macAddress = webServer.arg("mac");
+    if (macAddress.equals(expectedMacAddress)) {
+      webServer.send(200, "text/plain", "Authentication successful");
+    } else {
+      webServer.send(401, "text/plain", "Authentication failed");
+    }
+  } else {
+    webServer.send(400, "text/plain", "Missing MAC address parameter");
+  }
 }
 
 void handleWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
