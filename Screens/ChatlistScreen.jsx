@@ -23,6 +23,7 @@ const margin = Platform.OS === 'ios' ? 20 : 10;
 const ChatListScreen = () => {
 
     const [isSwitchOn, setIsSwitchOn] = useState(false);
+    const [adminStatus, setAdminStatus] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const onToggleSwitch = () => {
@@ -32,6 +33,24 @@ const ChatListScreen = () => {
 
     };
 
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const isAdminResult = await isAdmin();
+            setAdminStatus(isAdminResult);
+        };
+
+        checkAdmin();
+    }, []);
+
+    const isAdmin = async () => {
+        try {
+            const value = await AsyncStorage.getItem('admin');
+            return value === 'true'; // Check if the value is 'true' (case-sensitive)
+        } catch (error) {
+            console.error('Error retrieving admin flag:', error);
+            return false; // Assume not admin if there's an error
+        }
+    };
 
 
 
@@ -194,10 +213,10 @@ const ChatListScreen = () => {
                         data={distinctMessages}
                         renderItem={({ item }) => (item.phoneNumber != phone ? (
                             <>
-                                <TouchableHighlight onPress={() => handleItemPress(item)}>
+                                <TouchableHighlight underlayColor="#dfdfdf" onPress={() => handleItemPress(item)}>
                                     <View style={styles.itemContainer}>
                                         <Text style={styles.username}>{item.username}</Text>
-                                        <Text style={styles.phoneNumber}>{item.phoneNumber}</Text>
+                                        {item.phoneNumber == "e8:db:84:e3:0f:8d" ? <Text>Resnet India</Text> : <Text style={styles.phoneNumber}>{item.phoneNumber}</Text>}
                                         <Text style={styles.status}>{item.message}</Text>
                                     </View>
                                 </TouchableHighlight></>) : null
@@ -230,7 +249,7 @@ const ChatListScreen = () => {
 
                     icon={() => (
                         <Image
-                            source={require('../assets/reload.png')}
+                            source={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVR4nO1WW0tbQRD+fO6rphWiYGn7b4oKsVILpY9pPTOJ8Sf4K0TUvpRe0NBC63/R6kuTmRMV9cUXr5HdPYmJuZ2crNIHPxg4nJ3db2d2bsAj/juwjIMkD5I/INkDyakT3QHLFlgCFMpjvgk/g+UcrNXuYnVWBr8AaQakJ/VDSb8gkLfIV55jMXxiZeHfC/uP9Gv9cmYPlV8nI80fjILkyh0kG9byXgjCCadrL3oN1mwC5uoQWJaQ0/d9bzWxYInlEjmZSkA+AEgLkduPQDry0OS/IvK17oq5cMaKL5i4cEF51tlqs8ByYMWna2rBRpLvpPCjno/m2xdMqrGN8s02pOGblmLgy+Xz5VfRO/9tXijIMFj2W4hJD8GVp4kJGz3ILRXuew8F/ZmY2BhEUmlrUDZMNSuz7DqF0kv4AMlkvCckLbrF8qwX4thBS7Vq4zGqY6VpNkzdJnwp7Y08F6cwsaxHQVDEgyJrrNbj7tXmvsAybVuaaW2BcN/7g/CDbammtfYN0o9RM3eDgGnyvQknbO67PVf4tP+sf2IDM77U3O6Czow3c7YMNo4+JO9A+g0kFw09OIOBQKU0WJdjDXsmG1hXvWYEzGEUztvxlnX7znj7GyTkl/AR8IMbVJ2yLEgVnrYAAAAASUVORK5CYII=' }}
                             style={[
 
                                 {

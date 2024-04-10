@@ -49,9 +49,9 @@ const EditDetailsScreen = ({ route, navigation }) => {
                         if (rows.length > 0) {
                             setUsername(rows.item(0).username);
                             setPhoneNumber(rows.item(0).phoneNumber);
-                            setAddress(rows.item(0).address);
+
                             setEditedUsername(rows.item(0).username);
-                            setEditedAddress(rows.item(0).address);
+
                         }
                     },
                     (_, error) => {
@@ -66,12 +66,12 @@ const EditDetailsScreen = ({ route, navigation }) => {
         // Update the database with the edited values
         db.transaction((tx) => {
             tx.executeSql(
-                'UPDATE users SET username = ?, address = ? WHERE id = 1;',
-                [editedUsername, editedAddress],
+                'UPDATE users SET username = ? WHERE id = 1;',
+                [editedUsername],
                 () => {
                     console.log('Data updated successfully.');
-                    setUsername(editedUsername);
-                    setAddress(editedAddress);
+
+
                     setEditMode(false);
                 },
                 (_, error) => {
@@ -103,15 +103,7 @@ const EditDetailsScreen = ({ route, navigation }) => {
                 )}
                 <Text>{phoneNumber}</Text>
 
-                {editMode ? (
-                    <TextInput
-                        style={styles.input}
-                        value={editedAddress}
-                        onChangeText={setEditedAddress}
-                    />
-                ) : (
-                    <Text>{address}</Text>
-                )}
+
             </View>
 
             {editMode ? (
