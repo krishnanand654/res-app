@@ -82,12 +82,12 @@ export const Map: FC = ({ route }) => {
           description="Your Marker Description"
         />
       </MapView>
-
+      {/* 
       <View style={styles.actionContainer}>
         <Button raised title={"Download"} onPress={toggeleDownloadSettings} />
         <Button raised title={"Clear tiles"} onPress={clearTiles} />
         <Button raised title={toggleOfflineText} onPress={toggleOffline} />
-      </View>
+      </View> */}
 
       {visisbleSettings && (
         <DownloadSettings mapRegion={mapRegion} onFinish={onDownloadComplete} />

@@ -36,11 +36,11 @@ const SettingsScreen = () => {
         navigation.setOptions({
             headerTitle: 'Settings',
             headerStyle: {
-                backgroundColor: '#FFFFFF', // Change this to the desired color
+                backgroundColor: '#FFFFFF',
             },
-            headerTintColor: '#000000', // Change text color
+            headerTintColor: '#000000',
             headerTitleStyle: {
-                fontWeight: 'bold', // Style the text of the header title
+                fontWeight: 'bold',
             },
         });
 
