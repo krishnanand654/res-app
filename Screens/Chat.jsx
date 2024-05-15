@@ -202,8 +202,8 @@ const ChatScreen = ({ route }) => {
 
             // setMessages(localMessages);
         } catch (error) {
-            console.error('No messages');
-            console.log('error', error)
+            // console.error('No messages');
+            // console.log('error', error)
         }
 
 
